@@ -15,6 +15,7 @@ from pfhedge.nn.functional import exp_utility
 from pfhedge.nn.functional import expected_shortfall
 from pfhedge.nn.functional import leaky_clamp
 from pfhedge.nn.functional import pl
+from pfhedge.nn.functional import quadratic_cvar
 from pfhedge.nn.functional import realized_variance
 from pfhedge.nn.functional import realized_volatility
 from pfhedge.nn.functional import topp
@@ -107,8 +108,43 @@ def test_value_at_risk_gpu():
     test_value_at_risk(device="cuda")
 
 
-def test_leaky_clamp(device: Optional[Union[str, torch.device]] = "cpu"):
-    input = torch.tensor([-1.0, 0.0, 0.5, 1.0, 2.0], device=device)
+def test_quadratic_cvar():
+    input = torch.arange(1.0, 11.0)
+
+    result = quadratic_cvar(input, 2.0)
+    expect = torch.tensor(-2.025)
+    assert_close(result, expect)
+
+    input = torch.stack([torch.arange(1.0, 11.0), torch.arange(2.0, 12.0)], dim=0)
+
+    result = quadratic_cvar(input, 2.0, dim=1)
+    expect = torch.tensor([-2.025, -3.025])
+    assert_close(result, expect)
+
+
+def test_quadratic_cvar_extreme():
+    input = torch.arange(1.0, 11.0) + 1000
+
+    result = quadratic_cvar(input, 2.0)
+    expect = torch.tensor(-2.025 - 1000)
+    assert_close(result, expect)
+
+    input = (
+        torch.stack([torch.arange(1.0, 11.0), torch.arange(2.0, 12.0)], dim=0) - 1000
+    )
+
+    result = quadratic_cvar(input, 2.0, dim=1)
+    expect = torch.tensor([-2.025, -3.025]) + 1000
+    assert_close(result, expect)
+
+    input = torch.stack(
+        [torch.arange(1.0, 11.0) - 1000, torch.arange(1.0, 11.0) + 1000], dim=0
+    )
+    quadratic_cvar(input, 2.0, dim=1)
+
+
+def test_leaky_clamp():
+    input = torch.tensor([-1.0, 0.0, 0.5, 1.0, 2.0])
 
     result = leaky_clamp(input, 0, 1, clamped_slope=0.1)
     expect = torch.tensor([-0.1, 0.0, 0.5, 1.0, 1.1], device=device)
