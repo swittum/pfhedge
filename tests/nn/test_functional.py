@@ -143,8 +143,8 @@ def test_quadratic_cvar_extreme():
     quadratic_cvar(input, 2.0, dim=1)
 
 
-def test_leaky_clamp():
-    input = torch.tensor([-1.0, 0.0, 0.5, 1.0, 2.0])
+def test_leaky_clamp(device: Optional[Union[str, torch.device]] = "cpu"):
+    input = torch.tensor([-1.0, 0.0, 0.5, 1.0, 2.0], device=device)
 
     result = leaky_clamp(input, 0, 1, clamped_slope=0.1)
     expect = torch.tensor([-0.1, 0.0, 0.5, 1.0, 1.1], device=device)
