@@ -420,6 +420,56 @@ class MaxLogMoneyness(MaxMoneyness):
         super().__init__(log=True)
 
 
+class MeanMoneyness(StateIndependentFeature):
+    """Cumulative maximum of moneyness.
+
+    Name:
+        ``'max_moneyness'``
+
+    Examples:
+        >>> from pfhedge.features import MaxMoneyness
+        >>> from pfhedge.instruments import BrownianStock
+        >>> from pfhedge.instruments import EuropeanOption
+        ...
+        >>> _ = torch.manual_seed(42)
+        >>> derivative = EuropeanOption(BrownianStock(), maturity=5/250, strike=2.0)
+        >>> derivative.simulate()
+        >>> derivative.underlier.spot
+        tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906]])
+        >>> f = MaxMoneyness().of(derivative)
+        >>> f.get()
+        tensor([[[0.5000],
+                 [0.5008],
+                 [0.5022],
+                 [0.5036],
+                 [0.5036],
+                 [0.5036]]])
+    """
+
+    derivative: OptionType
+
+    def __init__(self, log: bool = False) -> None:
+        super().__init__()
+        self.log = log
+
+    def __str__(self) -> str:
+        return "mean_log_moneyness" if self.log else "mean_moneyness"
+
+    def get(self, time_step: Optional[int] = None) -> Tensor:
+        return self.derivative.mean_moneyness(time_step, log=self.log).unsqueeze(-1)
+
+class MeanLogMoneyness(MeanMoneyness):
+    """Cumulative maximum of log Moneyness.
+
+    Name:
+        ``'max_log_moneyness'``
+    """
+
+    derivative: OptionType
+
+    def __init__(self) -> None:
+        super().__init__(log=True)
+
 FEATURES: List[Type[Feature]] = [
     Empty,
     ExpiryTime,
@@ -434,6 +484,8 @@ FEATURES: List[Type[Feature]] = [
     Zeros,
     Spot,
     UnderlierSpot,
+    MeanMoneyness,
+    MeanLogMoneyness
 ]
 
 for cls in FEATURES:

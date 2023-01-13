@@ -376,7 +376,7 @@ class OptionMixin:
             return moneyness.cummax(dim=-1).values
         else:
             return moneyness[..., : time_step + 1].max(dim=-1, keepdim=True).values
-
+    
     def max_log_moneyness(self, time_step: Optional[int] = None) -> Tensor:
         """Returns ``self.max_moneyness(time_step).log()``.
 
@@ -384,6 +384,43 @@ class OptionMixin:
             torch.Tensor
         """
         return self.max_moneyness(time_step, log=True)
+    def mean_moneyness(
+        self, time_step: Optional[int] = None, log: bool = False
+    ) -> Tensor:
+        """Returns the cumulative mean of the moneyness.
+
+        Args:
+            time_step (int, optional): The time step to calculate
+                the time to maturity. If ``None`` (default), the time to
+                maturity is calculated at all time steps.
+            log (bool, default=False): If ``True``, returns the cumulative
+                maximum of the log moneyness.
+
+        Shape:
+            - Output: :math:`(N, T)` where
+              :math:`N` is the number of paths and
+              :math:`T` is the number of time steps.
+              If ``time_step`` is given, the shape is :math:`(N, 1)`.
+
+        Returns:
+            torch.Tensor
+        """
+        moneyness = self.moneyness(None, log=False)
+        if time_step is None:
+            temp = torch.ones_like(moneyness)
+            output = moneyness.cumsum(dim=-1)/temp.cumsum(dim=-1)
+        else:
+            output = moneyness[..., : time_step + 1].mean(dim=-1, keepdim=True)
+        if log:
+            output = output.log()
+        return output
+    def mean_log_moneyness(self, time_step: Optional[int] = None) -> Tensor:
+        """Returns ``self.max_moneyness(time_step).log()``.
+
+        Returns:
+            torch.Tensor
+        """
+        return self.mean_moneyness(time_step, log=True)
 
 
 class BaseOption(BaseDerivative, OptionMixin):

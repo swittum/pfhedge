@@ -96,7 +96,30 @@ def american_binary_payoff(
         return (input.max(dim=-1).values >= strike).to(input)
     else:
         return (input.min(dim=-1).values <= strike).to(input)
+def asian_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Tensor:
+    """Returns the payoff of an asian option with a fixed strike.
 
+    .. seealso::
+        - :class:`pfhedge.instruments.LookbackOption`
+
+    Args:
+        input (torch.Tensor): The input tensor representing the price trajectory.
+        call (bool, default=True): Specifies whether the option is call or put.
+        strike (float, default=1.0): The strike price of the option.
+
+    Shape:
+        - input: :math:`(*, T)` where
+          :math:`T` is the number of time steps and
+          :math:`*` means any number of additional dimensions.
+        - output: :math:`(*)`
+
+    Returns:
+        torch.Tensor
+    """
+    if call:
+        return fn.relu(input.mean(dim=-1) - strike)
+    else:
+        return fn.relu(strike - input.mean(dim=-1))
 
 def european_binary_payoff(
     input: Tensor, call: bool = True, strike: float = 1.0
