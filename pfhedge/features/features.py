@@ -448,16 +448,41 @@ class MeanMoneyness(StateIndependentFeature):
 
     derivative: OptionType
 
-    def __init__(self, log: bool = False) -> None:
+    def __init__(self, log: bool = False, geom = False) -> None:
         super().__init__()
         self.log = log
+        self.geom = geom
 
     def __str__(self) -> str:
-        return "mean_log_moneyness" if self.log else "mean_moneyness"
+        if not self.geom:
+            return "log_mean_moneyness" if self.log else "mean_moneyness"
+        return "mean_log_moneyness" if self.log else "geometric_mean_moneyness"
 
     def get(self, time_step: Optional[int] = None) -> Tensor:
-        return self.derivative.mean_moneyness(time_step, log=self.log).unsqueeze(-1)
+        return self.derivative.mean_moneyness(time_step, log=self.log, geom=self.geom).unsqueeze(-1)
 
+class LogMeanMoneyness(MeanMoneyness):
+    """Cumulative maximum of log Moneyness.
+
+    Name:
+        ``'max_log_moneyness'``
+    """
+
+    derivative: OptionType
+
+    def __init__(self) -> None:
+        super().__init__(log=True)   
+class GeometricMeanMoneyness(MeanMoneyness):
+    """Cumulative maximum of log Moneyness.
+
+    Name:
+        ``'max_log_moneyness'``
+    """
+
+    derivative: OptionType
+
+    def __init__(self) -> None:
+        super().__init__(geom=True)   
 class MeanLogMoneyness(MeanMoneyness):
     """Cumulative maximum of log Moneyness.
 
@@ -468,7 +493,8 @@ class MeanLogMoneyness(MeanMoneyness):
     derivative: OptionType
 
     def __init__(self) -> None:
-        super().__init__(log=True)
+        super().__init__(log=True,geom=True)   
+
 
 FEATURES: List[Type[Feature]] = [
     Empty,
@@ -485,7 +511,9 @@ FEATURES: List[Type[Feature]] = [
     Spot,
     UnderlierSpot,
     MeanMoneyness,
-    MeanLogMoneyness
+    LogMeanMoneyness,
+    MeanLogMoneyness,
+    GeometricMeanMoneyness
 ]
 
 for cls in FEATURES:

@@ -385,7 +385,7 @@ class OptionMixin:
         """
         return self.max_moneyness(time_step, log=True)
     def mean_moneyness(
-        self, time_step: Optional[int] = None, log: bool = False
+        self, time_step: Optional[int] = None, log: bool = False, geom: bool = False
     ) -> Tensor:
         """Returns the cumulative mean of the moneyness.
 
@@ -405,14 +405,16 @@ class OptionMixin:
         Returns:
             torch.Tensor
         """
-        moneyness = self.moneyness(None, log=False)
+        moneyness = self.moneyness(None, log=geom)
         if time_step is None:
             temp = torch.ones_like(moneyness)
             output = moneyness.cumsum(dim=-1)/temp.cumsum(dim=-1)
         else:
             output = moneyness[..., : time_step + 1].mean(dim=-1, keepdim=True)
-        if log:
+        if log and not geom:
             output = output.log()
+        if geom and not log:
+            output = output.exp()
         return output
     def mean_log_moneyness(self, time_step: Optional[int] = None) -> Tensor:
         """Returns ``self.max_moneyness(time_step).log()``.

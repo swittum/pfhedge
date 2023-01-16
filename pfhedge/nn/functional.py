@@ -96,7 +96,7 @@ def american_binary_payoff(
         return (input.max(dim=-1).values >= strike).to(input)
     else:
         return (input.min(dim=-1).values <= strike).to(input)
-def asian_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Tensor:
+def asian_payoff(input: Tensor, call: bool = True, strike: float = 1.0, geom: bool = False) -> Tensor:
     """Returns the payoff of an asian option with a fixed strike.
 
     .. seealso::
@@ -116,10 +116,15 @@ def asian_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Tenso
     Returns:
         torch.Tensor
     """
+    if geom:
+        input = input.log()
+    mean = input.mean(dim=-1)
+    if geom:
+        mean = mean.exp()
     if call:
-        return fn.relu(input.mean(dim=-1) - strike)
+        return fn.relu(mean - strike)
     else:
-        return fn.relu(strike - input.mean(dim=-1))
+        return fn.relu(strike - mean)
 
 def european_binary_payoff(
     input: Tensor, call: bool = True, strike: float = 1.0

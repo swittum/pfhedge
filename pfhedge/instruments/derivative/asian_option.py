@@ -77,6 +77,7 @@ class AsianOption(BaseDerivative, OptionMixin):
         call: bool = True,
         strike: float = 1.0,
         maturity: float = 20 / 250,
+        geom: bool = False,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
     ) -> None:
@@ -85,6 +86,7 @@ class AsianOption(BaseDerivative, OptionMixin):
         self.call = call
         self.strike = strike
         self.maturity = maturity
+        self.geom = geom
 
         # TODO(simaki): Remove later. Deprecated for > v0.12.3
         if dtype is not None or device is not None:
@@ -104,7 +106,7 @@ class AsianOption(BaseDerivative, OptionMixin):
 
     def payoff_fn(self) -> Tensor:
         return asian_payoff(
-            self.ul().spot, call=self.call, strike=self.strike
+            self.ul().spot, call=self.call, strike=self.strike, geom=self.geom
         )
 
 

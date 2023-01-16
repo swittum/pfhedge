@@ -1,5 +1,6 @@
 from typing import List,Union
-from pfhedge.instruments import BaseDerivative, EuropeanOption, EuropeanBinaryOption, AmericanBinaryOption, LookbackOption, VarianceSwap, AsianOption
+from pfhedge.instruments import BaseDerivative, EuropeanOption, EuropeanBinaryOption, AmericanBinaryOption, LookbackOption
+from pfhedge.instruments import VarianceSwap, AsianOption, EuropeanForwardStartOption
 from pfhedge.nn import BlackScholes
 def prepare_hedges(transaction_costs: Union[float, List[float]],*args):
     num_hedges = len(args)
@@ -17,13 +18,20 @@ def prepare_hedges(transaction_costs: Union[float, List[float]],*args):
         hedge.append(der)
     return hedge
 def prepare_features(derivative: BaseDerivative, prev_hedge: bool):
-    features = ["log_moneyness", "expiry_time", "volatility"]
-    if derivative.__class__ == AmericanBinaryOption or derivative.__class__ == LookbackOption:
-        features.append("max_log_moneyness")
+    features = None
+    if derivative.__class__ in (EuropeanOption,EuropeanBinaryOption,AmericanBinaryOption,LookbackOption):
+        features = BlackScholes(derivative).inputs()
     if derivative.__class__ == AsianOption:
-        features.append("mean_log_moneyness")
+        if derivative.geom:
+            features = ["log_moneyness", "mean_log_moneyness", "expiry_time", "volatility"]
+        else:
+            features = ["log_moneyness", "log_mean_moneyness", "expiry_time", "volatility"]
+    if derivative.__class__ == EuropeanForwardStartOption:
+        features = ["log_moneyness", "expiry_time", "volatility"]
     if derivative.__class__ == VarianceSwap:
         features= ['volatility', 'underlier_spot']
+    if features is None:
+        raise TypeError("Derivative unsupported")
     if prev_hedge:
         features.append("prev_hedge")
     return features
