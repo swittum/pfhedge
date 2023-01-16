@@ -2,6 +2,7 @@ from models import MultiLayerHybrid, NoTransactionBandNet
 from quantum_circuits import SimpleQuantumCircuit
 from plotting_library import save_pl_diagram, save_training_diagram
 from utils import black_scholes_implemented, prepare_hedges, prepare_features
+from clauses import add_cap_clause, add_knockout_clause, add_knockin_clause
 from pfhedge.nn import Hedger, ExpectedShortfall, EntropicRiskMeasure, MultiLayerPerceptron, BlackScholes, WhalleyWilmott, Naked
 from pfhedge.instruments import BrownianStock, HestonStock, LocalVolatilityStock, MertonJumpStock, RoughBergomiStock
 from pfhedge.instruments import EuropeanOption, EuropeanBinaryOption, AmericanBinaryOption, LookbackOption, VarianceSwap, AsianOption, EuropeanForwardStartOption
@@ -14,8 +15,8 @@ def sigma_fn(time,spot):
 if __name__ == "__main__":
     seaborn.set_style("whitegrid")
     n_qubits=2
-    stock = MertonJumpStock()
-    derivative = AsianOption(stock,strike=1.0,geom=True)
+    stock = HestonStock()
+    derivative = EuropeanOption(stock,call=True)
     blackscholes = black_scholes_implemented(derivative)
     extra = EuropeanOption(stock)
     hedge = prepare_hedges(1e-4,stock)
@@ -47,9 +48,11 @@ if __name__ == "__main__":
         compmodel = WhalleyWilmott(derivative) 
         comphedger = Hedger(compmodel, inputs=compmodel.inputs())
         print("Whalley-Wilmott:")
-    else:
-        comphedger = Hedger(Naked(),inputs=["empty"])
-        print("No hedge:")
-    comp = comphedger.compute_pnl(derivative, n_paths=1000)
-    save_pl_diagram(comp,'plbenchmark.png')
-    print(expected_shortfall(comp))
+        comp = comphedger.compute_pnl(derivative, n_paths=1000)
+        save_pl_diagram(comp,'plbenchmark.png')
+        print(expected_shortfall(comp))
+    nohedger = Hedger(Naked(),inputs=["empty"])
+    print("No hedge:")
+    nohedge = nohedger.compute_pnl(derivative,n_paths=1000)
+    print(expected_shortfall(nohedge))
+    save_pl_diagram(nohedge,'plnone.png')
