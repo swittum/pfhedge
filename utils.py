@@ -2,6 +2,9 @@ from typing import List,Union
 from pfhedge.instruments import BaseDerivative, EuropeanOption, EuropeanBinaryOption, AmericanBinaryOption, LookbackOption
 from pfhedge.instruments import VarianceSwap, AsianOption, EuropeanForwardStartOption
 from pfhedge.nn import BlackScholes
+def black_scholes_implemented(derivative: BaseDerivative):
+    list = [EuropeanOption,EuropeanBinaryOption,AmericanBinaryOption,LookbackOption]
+    return derivative.__class__ in list
 def prepare_hedges(transaction_costs: Union[float, List[float]],*args):
     num_hedges = len(args)
     if num_hedges==0:
@@ -19,7 +22,7 @@ def prepare_hedges(transaction_costs: Union[float, List[float]],*args):
     return hedge
 def prepare_features(derivative: BaseDerivative, prev_hedge: bool):
     features = None
-    if derivative.__class__ in (EuropeanOption,EuropeanBinaryOption,AmericanBinaryOption,LookbackOption):
+    if black_scholes_implemented(derivative):
         features = BlackScholes(derivative).inputs()
     if derivative.__class__ == AsianOption:
         if derivative.geom:

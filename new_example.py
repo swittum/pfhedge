@@ -1,7 +1,7 @@
 from models import MultiLayerHybrid, NoTransactionBandNet
 from quantum_circuits import SimpleQuantumCircuit
 from plotting_library import save_pl_diagram, save_training_diagram
-from utils import prepare_hedges, prepare_features
+from utils import black_scholes_implemented, prepare_hedges, prepare_features
 from pfhedge.nn import Hedger, ExpectedShortfall, EntropicRiskMeasure, MultiLayerPerceptron, BlackScholes, WhalleyWilmott, Naked
 from pfhedge.instruments import BrownianStock, HestonStock, LocalVolatilityStock, MertonJumpStock, RoughBergomiStock
 from pfhedge.instruments import EuropeanOption, EuropeanBinaryOption, AmericanBinaryOption, LookbackOption, VarianceSwap, AsianOption, EuropeanForwardStartOption
@@ -16,6 +16,7 @@ if __name__ == "__main__":
     n_qubits=2
     stock = MertonJumpStock()
     derivative = AsianOption(stock,strike=1.0,geom=True)
+    blackscholes = black_scholes_implemented(derivative)
     extra = EuropeanOption(stock)
     hedge = prepare_hedges(1e-4,stock)
     features = prepare_features(derivative,True)
@@ -23,8 +24,8 @@ if __name__ == "__main__":
     NTB = 0
     out = len(hedge)+NTB
     if QUANTUM:
-        TwoQubit = SimpleQuantumCircuit(n_qubits,4)
-        model = MultiLayerHybrid(TwoQubit.get_module(),n_qubits,n_qubits,n_layers=3,n_units=16, out_features=out)
+        circuit = SimpleQuantumCircuit(n_qubits,4)
+        model = MultiLayerHybrid(circuit.get_module(),n_qubits,n_qubits,n_layers=3,n_units=16, out_features=out)
     else:
         model = MultiLayerPerceptron(out_features=out)
 
@@ -40,10 +41,15 @@ if __name__ == "__main__":
     pnl = hedger.compute_pnl(derivative,n_paths=1000,hedge=hedge)
     save_pl_diagram(pnl, 'pldiagram.png')
     save_training_diagram(history,'trainingdiagram.png')
-    compmodel = WhalleyWilmott(derivative)
-    comphedger = Hedger(compmodel, inputs=compmodel.inputs())
-    #comphedger = Hedger(Naked(),inputs=["empty"])
+    print("Trained model:")
+    print(expected_shortfall(pnl))
+    if blackscholes:
+        compmodel = WhalleyWilmott(derivative) 
+        comphedger = Hedger(compmodel, inputs=compmodel.inputs())
+        print("Whalley-Wilmott:")
+    else:
+        comphedger = Hedger(Naked(),inputs=["empty"])
+        print("No hedge:")
     comp = comphedger.compute_pnl(derivative, n_paths=1000)
     save_pl_diagram(comp,'plbenchmark.png')
-    print(expected_shortfall(pnl))
     print(expected_shortfall(comp))
