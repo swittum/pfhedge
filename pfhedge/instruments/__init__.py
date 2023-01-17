@@ -11,6 +11,7 @@ from .derivative.european_binary import EuropeanBinaryOption
 from .derivative.lookback import LookbackOption
 from .derivative.variance_swap import VarianceSwap
 from .derivative.asian_option import AsianOption
+from .derivative.asian_option_floating import FloatingAsianOption
 from .derivative.multi_derivative import MultiDerivative
 from .primary.base import BasePrimary
 from .primary.base import Primary
