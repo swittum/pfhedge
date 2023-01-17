@@ -139,3 +139,32 @@ class MultiDerivative(BaseDerivative):
         for i in range(1,len(self.derivatives)):
             payoff += self.derivatives[i].payoff()
         return payoff
+    
+    def moneyness(self, time_step: Optional[int] = None, log: bool = False) -> Tensor:
+        """Returns the moneyness of self.
+
+        Moneyness reads :math:`S / K` where
+        :math:`S` is the spot price of the underlying instrument and
+        :math:`K` is the strike of the derivative.
+
+        Args:
+            time_step (int, optional): The time step to calculate
+                the moneyness. If ``None`` (default), the moneyness is calculated
+                at all time steps.
+            log (bool, default=False): If ``True``, returns log moneyness.
+
+        Shape:
+            - Output: :math:`(N, T)` where
+              :math:`N` is the number of paths and
+              :math:`T` is the number of time steps.
+              If ``time_step`` is given, the shape is :math:`(N, 1)`.
+
+        Returns:
+            torch.Tensor
+        """
+        k = len(self.derivatives)
+        output = self.derivatives[0].moneyness(time_step,log)
+        for i in range(1,k):
+            output += self.derivatives[i].moneyness(time_step,log)
+        output = output/k
+        return output
