@@ -10,13 +10,12 @@ from torch.nn import Linear
 from torch.nn import Module
 from torch.nn import ReLU
 from torch.nn import Sequential
+from quantum_circuits import QuantumCircuit
 
 class MultiLayerHybrid(Sequential):
     def __init__(
         self,
-        quantum: Module,
-        quantum_in: int,
-        quantum_out: int,
+        quantum: QuantumCircuit,
         #quantum_nr: int = -1, 
         in_features: Optional[int] = None,
         out_features: int = 1,
@@ -41,9 +40,9 @@ class MultiLayerHybrid(Sequential):
             else:
                 layers.append(Linear(n_units[i - 1], n_units[i]))
             layers.append(deepcopy(activation))
-        layers.append(Linear(n_units[-1], quantum_in))
-        layers.append(quantum)
-        layers.append(Linear(quantum_out,out_features))
+        layers.append(Linear(n_units[-1], quantum.n_inputs))
+        layers.append(quantum.get_module())
+        layers.append(Linear(quantum.n_outputs,out_features))
         layers.append(deepcopy(out_activation))
 
         super().__init__(*layers)

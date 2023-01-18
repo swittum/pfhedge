@@ -21,12 +21,12 @@ if __name__ == "__main__":
     extra = EuropeanOption(stock)
     hedge = prepare_hedges(1e-4,stock)
     features = prepare_features(derivative,True)
-    QUANTUM=False
+    QUANTUM=True
     NTB = 0
     out = len(hedge)+NTB
     if QUANTUM:
         circuit = SimpleQuantumCircuit(n_qubits,4)
-        model = MultiLayerHybrid(circuit.get_module(),n_qubits,n_qubits,n_layers=3,n_units=16, out_features=out)
+        model = MultiLayerHybrid(circuit,n_layers=3,n_units=16, out_features=out)
     else:
         model = MultiLayerPerceptron(out_features=out)
 
