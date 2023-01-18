@@ -10,7 +10,7 @@ class QuantumCircuit(ABC):
         raise NotImplementedError()
 
 class SimpleQuantumCircuit(QuantumCircuit):
-    def __init__(self, n_qubits, n_layers):
+    def __init__(self, n_qubits=2, n_layers=4):
         super().__init__()
         dev = qml.device('default.qubit', wires=n_qubits)
         self.qnode = self._make_qnode(n_qubits,dev)
