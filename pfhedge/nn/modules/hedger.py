@@ -489,12 +489,14 @@ class Hedger(Module):
         self,
         derivative: BaseDerivative,
         optimizer: Union[Optimizer, Callable[..., Optimizer]],
+        hedge: Optional[List[BaseInstrument]] = None,
     ) -> Optimizer:
+        hedge = self._get_hedge(derivative,hedge)
         if not isinstance(optimizer, Optimizer):
             if has_lazy(self):
                 # Run a placeholder forward to initialize lazy parameters
                 derivative.simulate(n_paths=1)
-                _ = self.compute_pl(derivative)
+                _ = self.compute_pl(derivative,hedge)
             # If we use `if issubclass(optimizer, Optimizer)` here, mypy thinks that
             # optimizer is Optimizer rather than its subclass (e.g. Adam)
             # and complains that the required parameter default is missing.
@@ -590,7 +592,7 @@ class Hedger(Module):
             ...     n_epochs=1,
             ...     verbose=False)
         """
-        optimizer = self._configure_optimizer(derivative, optimizer)
+        optimizer = self._configure_optimizer(derivative, optimizer, hedge)
 
         def compute_loss(**kwargs: Any) -> Tensor:
             return self.compute_loss(
