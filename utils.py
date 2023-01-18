@@ -43,7 +43,7 @@ def prepare_features(derivative: BaseDerivative, prev_hedge: bool):
 
 def list_derivative(derivative: BaseDerivative,cost: float):
     pricer = None
-    if derivative.__class__ == AmericanBinaryOption or derivative.__class__ == LookbackOption:
+    if derivative.__class__ == EuropeanOption or derivative.__class__ == EuropeanBinaryOption:
         pricer = lambda derivative: BlackScholes(derivative).price(
         log_moneyness=derivative.log_moneyness(),
         time_to_maturity=derivative.time_to_maturity(),
@@ -57,7 +57,7 @@ def list_derivative(derivative: BaseDerivative,cost: float):
     if derivative.__class__ == VarianceSwap:
         pricer = lambda varswap: varswap.ul().variance - varswap.strike
     if pricer==None:
-        raise TypeError("Unsupported derivative type, must have Black-Scholes support or be variance swap")
+        raise TypeError("Tried to list unsupported derivative type, must have Black-Scholes support or be variance swap")
     derivative.list(pricer,cost)
     
 
