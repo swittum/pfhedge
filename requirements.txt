@@ -1,0 +1,4 @@
+pennylane>=0.28.0
+torch>=1.13
+seaborn
+tqdm
