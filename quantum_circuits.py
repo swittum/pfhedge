@@ -1,11 +1,12 @@
 import pennylane as qml
+import jax
 class SimpleQuantumCircuit:
     def __init__(self, n_qubits, n_layers):       
-        dev = qml.device('lightning.qubit', wires=n_qubits)
+        dev = qml.device('default.qubit.jax', wires=n_qubits)
         self.qnode = self._make_qnode(n_qubits,dev)
         self.weight_shapes = self._make_weight_shapes(n_qubits,n_layers)
     def _make_qnode(self, n_qubits, dev):
-        @qml.qnode(dev)
+        @qml.qnode(dev, interface='jax')
         def qnode(inputs, weights):
             qml.AngleEmbedding(inputs, wires=range(n_qubits))
             qml.BasicEntanglerLayers(weights, wires=range(n_qubits))
@@ -17,8 +18,9 @@ class SimpleQuantumCircuit:
         return qml.qnn.TorchLayer(self.qnode,self.weight_shapes)
 class TestCircuit:
     def __init__(self):
-        dev = qml.device("default.qubit", wires=1)
-        @qml.qnode(dev, shots=None)
+        dev = qml.device("default.qubit.jax", wires=1)
+        @jax.jit
+        @qml.qnode(dev, interface='jax', shots=None)
         def circuit(inputs):
             qml.RX(inputs[1], wires=0)
             qml.Rot(inputs[0], inputs[1], inputs[2], wires=0)
