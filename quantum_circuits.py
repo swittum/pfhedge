@@ -1,10 +1,21 @@
 import pennylane as qml
+from abc import ABC,abstractmethod
 import numpy as np
 import jax
-class SimpleQuantumCircuit:
-    def __init__(self, n_qubits, n_layers, n_measurements = 0):
+class QuantumCircuit(ABC):
+    def __init__(self) -> None:
+        super().__init__()
+        self.n_inputs = 0
+        self.n_outputs = 0
+        self.qnodes = []
+
+class SimpleQuantumCircuit(QuantumCircuit):
+    def __init__(self, n_qubits=2, n_layers=4, n_measurements = 0):
+        super().__init__()
         if n_measurements == 0:
             n_measurements = n_qubits
+        self.n_inputs = n_qubits
+        self.n_outputs = n_measurements
         dev = qml.device('default.qubit.jax', wires=n_qubits)
         weights = self._get_weights((n_layers,n_qubits))
         self.qnodes = [self._make_qnode(n_qubits,dev,weights,i) for i in range(n_measurements)]
