@@ -13,10 +13,10 @@ def save_pl_diagram(pnl, path):
     plt.ylabel("Number of events")
     plt.savefig(path)
 
-def save_training_diagram(history, path, loss="expected shortfall"):
+def save_training_diagram(history, path):
     plt.figure()
     plt.plot(history)
     plt.xlabel("Number of epochs")
-    plt.ylabel(f"Loss ({loss})")
+    plt.ylabel("Loss")
     plt.title("Loss history")
     plt.savefig(path)
