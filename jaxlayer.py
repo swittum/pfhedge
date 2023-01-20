@@ -19,12 +19,6 @@ def unstack_and_gradient(inputs, grad_func, grad):
     output = torch.stack(output)
     #output = torch.bmm(output,grad)
     return output.reshape((shp[0],shp[1],-1))
-def tensor_to_array(tensor):
-    #temp = np.array(tensor)
-    return jax.numpy.asarray(tensor)
-def array_to_tensor(array):
-    #temp = np.array(array)
-    return torch.tensor(array)
 def make_jax_function(qnode,grad):
     class JaxFunction(torch.autograd.Function):
             @staticmethod
