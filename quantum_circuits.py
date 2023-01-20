@@ -18,9 +18,9 @@ class SimpleQuantumCircuit:
         return qml.qnn.TorchLayer(self.qnode,self.weight_shapes)
 class TestCircuit:
     def __init__(self):
-        dev = qml.device("default.qubit.jax", wires=1)
+        dev = qml.device("default.qubit.jax", wires=1, shots=None)
         @jax.jit
-        @qml.qnode(dev, interface='jax', shots=None)
+        @qml.qnode(dev, interface='jax', shots=None, diff_method='best')
         def circuit(inputs):
             qml.RX(inputs[1], wires=0)
             qml.Rot(inputs[0], inputs[1], inputs[2], wires=0)
