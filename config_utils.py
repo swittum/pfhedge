@@ -4,10 +4,11 @@ from torch.nn import Module
 from pfhedge.nn import MultiLayerPerceptron, HedgeLoss, EntropicRiskMeasure, EntropicLoss, ExpectedShortfall
 from pfhedge.instruments import BaseInstrument, BasePrimary, BaseDerivative
 from pfhedge.instruments import BrownianStock,HestonStock,MertonJumpStock,RoughBergomiStock
-from pfhedge.instruments import EuropeanOption,EuropeanBinaryOption,LookbackOption
+from pfhedge.instruments import EuropeanOption,EuropeanBinaryOption,LookbackOption, AmericanBinaryOption, VarianceSwap, AsianOption, EuropeanForwardStartOption, FloatingAsianOption
 from utils import list_derivative
 from models import MultiLayerHybrid, NoTransactionBandNet
 from quantum_circuits import QuantumCircuit,SimpleQuantumCircuit
+from clauses import add_cap_clause, add_knockin_clause, add_knockout_clause
 def dict_without_keys(dictionary: dict, *args: tuple[str]):
     copy = dict()
     for key in dictionary.keys():
@@ -22,14 +23,32 @@ def make_underlier(config: dict) -> BasePrimary:
     underlier_type = options[config.get('type', 'BrownianStock')]
     cfg = dict_without_keys(config, 'type')
     return underlier_type(**cfg)
+def add_clause(config: dict, derivative: BaseDerivative):
+    options = {'cap': add_cap_clause,
+               'knockout': add_knockout_clause,
+               'knockin': add_knockin_clause
+               }
+    clause_type = options.get(config.get('type','none'), None)
+    if clause_type == None:
+        return
+    cfg = dict_without_keys(config, 'type')
+    clause_type(derivative, **cfg)
 def make_derivative(config: dict, underlier: BasePrimary) -> BaseDerivative:
-    options = {'EuropeanOption': EuropeanOption,
-                   'EuropeanBinaryOption': EuropeanBinaryOption,
-                   'LookbackOption': LookbackOption
-                   }
+    options =  {'EuropeanOption': EuropeanOption,
+                'EuropeanBinaryOption': EuropeanBinaryOption,
+                'AmericanBinaryOption': AmericanBinaryOption,
+                'LookbackOption': LookbackOption,
+                'VarianceSwap': VarianceSwap,
+                'AsianOption': AsianOption,
+                'EuropeanForwardStartOption': EuropeanForwardStartOption,
+                'FloatingAsianOption': FloatingAsianOption,
+                }
     derivative_type = options[config.get('type', 'EuropeanOption')]
-    cfg = dict_without_keys(config,'type','cost')
-    return derivative_type(underlier=underlier,**cfg)
+    cfg = dict_without_keys(config,'type','cost','clauses')
+    derivative = derivative_type(underlier=underlier,**cfg)
+    for clause in config.get('clauses', []):
+        add_clause(clause, derivative)
+    return derivative
 def make_hedge(config: dict, underlier:BasePrimary) -> List[BaseInstrument]:
     hedge = []
     if config.get('underlier',True):
