@@ -31,10 +31,8 @@ def prepare_features(derivative: BaseDerivative, prev_hedge: bool):
             features = ["log_moneyness", "log_mean_moneyness", "expiry_time", "volatility"]
     if derivative.__class__ == EuropeanForwardStartOption:
         features = ["log_moneyness", "expiry_time", "volatility"]
-    if derivative.__class__ == VarianceSwap:
-        features= ['volatility', 'underlier_spot']
     if features is None:
-        raise TypeError("Derivative unsupported")
+        features= ['volatility', 'underlier_spot']
     if prev_hedge:
         features.append("prev_hedge")
     return features
@@ -60,6 +58,10 @@ def list_derivative(derivative: BaseDerivative,cost: float):
         raise TypeError("Tried to list unsupported derivative type, must have Black-Scholes support or be variance swap")
     derivative.list(pricer,cost)
     
+def make_linear_volatility(scale, bias=0.0):
+    def sigma_fn(time,spot):
+        scale*spot+bias
+    return sigma_fn
 
 
         

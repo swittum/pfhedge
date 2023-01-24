@@ -1,5 +1,5 @@
 import pennylane as qml
-from abc import ABC,abstractmethod
+from abc import ABC
 import numpy as np
 import jax
 class QuantumCircuit(ABC):
@@ -14,6 +14,8 @@ class SimpleQuantumCircuit(QuantumCircuit):
         super().__init__()
         if n_measurements == 0:
             n_measurements = n_qubits
+        if n_measurements > n_qubits or n_measurements < 0:
+            raise ValueError("Invalid number of measurements")
         self.n_inputs = n_qubits
         self.n_outputs = n_measurements
         dev = qml.device('default.qubit.jax', wires=n_qubits)
