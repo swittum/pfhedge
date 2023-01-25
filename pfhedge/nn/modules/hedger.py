@@ -489,7 +489,8 @@ class Hedger(Module):
         self,
         derivative: BaseDerivative,
         optimizer: Union[Optimizer, Callable[..., Optimizer]],
-        hedge: Optional[List[BaseInstrument]] = None,
+        hedge: Optional[List[BaseInstrument]],
+        optimizer_kwargs: dict,
     ) -> Optimizer:
         hedge = self._get_hedge(derivative,hedge)
         if not isinstance(optimizer, Optimizer):
@@ -501,7 +502,7 @@ class Hedger(Module):
             # optimizer is Optimizer rather than its subclass (e.g. Adam)
             # and complains that the required parameter default is missing.
             if Optimizer in getattr(optimizer, "__mro__", []):
-                optimizer = cast(Optimizer, optimizer(self.model.parameters()))
+                optimizer = cast(Optimizer, optimizer(self.model.parameters(), **optimizer_kwargs))
             else:
                 raise TypeError("optimizer is not an Optimizer type")
         return optimizer
@@ -517,7 +518,8 @@ class Hedger(Module):
         init_state: Optional[Tuple[TensorOrScalar, ...]] = None,
         verbose: bool = True,
         validation: bool = True,
-        tqdm_kwargs: dict = {},
+        tqdm_kwargs: dict = None,
+        optimizer_kwargs: dict = None,
     ) -> Optional[List[float]]:
         """Fit the hedging model to hedge a given derivative.
 
@@ -592,7 +594,11 @@ class Hedger(Module):
             ...     n_epochs=1,
             ...     verbose=False)
         """
-        optimizer = self._configure_optimizer(derivative, optimizer, hedge)
+        if tqdm_kwargs is None:
+            tqdm_kwargs = {}
+        if optimizer_kwargs is None:
+            optimizer_kwargs = {}
+        optimizer = self._configure_optimizer(derivative, optimizer, hedge, optimizer_kwargs=optimizer_kwargs)
 
         def compute_loss(**kwargs: Any) -> Tensor:
             return self.compute_loss(
