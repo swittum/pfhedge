@@ -1,33 +1,36 @@
 import pennylane as qml
-from abc import ABC,abstractmethod
+from abc import ABC
+import numpy as np
+import jax
 class QuantumCircuit(ABC):
     def __init__(self) -> None:
         super().__init__()
         self.n_inputs = 0
         self.n_outputs = 0
-    @abstractmethod
-    def get_module(self):
-        raise NotImplementedError()
+        self.qnodes = []
 
 class SimpleQuantumCircuit(QuantumCircuit):
-    def __init__(self, n_qubits=2, n_layers=4):
+    def __init__(self, n_qubits=2, n_layers=4, n_measurements = 0):
         super().__init__()
-        dev = qml.device('default.qubit', wires=n_qubits)
-        self.qnode = self._make_qnode(n_qubits,dev)
-        self.weight_shapes = self._make_weight_shapes(n_qubits,n_layers)
+        if n_measurements == 0:
+            n_measurements = n_qubits
+        if n_measurements > n_qubits or n_measurements < 0:
+            raise ValueError("Invalid number of measurements")
         self.n_inputs = n_qubits
-        self.n_outputs = n_qubits
-    def _make_qnode(self, n_qubits, dev):
-        @qml.qnode(dev)
-        def qnode(inputs, weights):
+        self.n_outputs = n_measurements
+        dev = qml.device('default.qubit.jax', wires=n_qubits)
+        weights = self._get_weights((n_layers,n_qubits))
+        #self.qnodes = [self._make_qnode(n_qubits,dev,weights,i) for i in range(n_measurements)]
+        self.qnode = self._make_qnode(n_qubits,dev, weights,n_measurements)
+    def _make_qnode(self, n_qubits, dev, weights, n_measurements):
+        @jax.jit
+        @qml.qnode(dev, interface='jax', shots=None, diff_method='best')
+        def qnode(inputs):
             qml.AngleEmbedding(inputs, wires=range(n_qubits))
             qml.BasicEntanglerLayers(weights, wires=range(n_qubits))
-            return [qml.expval(qml.PauliZ(wires=i)) for i in range(n_qubits)]
+            return [qml.expval(qml.PauliZ(wires=i)) for i in range(n_measurements)]
+            #return qml.expval(qml.PauliZ(wires=i))
         return qnode
-    def _make_weight_shapes(self, n_qubits, n_layers):
-        return {"weights": (n_layers, n_qubits)}
-    def get_module(self):
-        return qml.qnn.TorchLayer(self.qnode,self.weight_shapes)
-
-
+    def _get_weights(self, shape):
+        return 2*np.pi*np.random.random_sample(shape)
 
