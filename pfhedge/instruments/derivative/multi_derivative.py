@@ -135,10 +135,7 @@ class MultiDerivative(BaseDerivative):
         return "; ".join(params)
 
     def payoff_fn(self) -> Tensor:
-        payoff = self.derivatives[0].payoff()
-        for i in range(1,len(self.derivatives)):
-            payoff += self.derivatives[i].payoff()
-        return payoff
+        return torch.sum(torch.stack([der.payoff() for der in self.derivatives]),0)
     
     def moneyness(self, time_step: Optional[int] = None, log: bool = False) -> Tensor:
         """Returns the moneyness of self.
@@ -163,8 +160,4 @@ class MultiDerivative(BaseDerivative):
             torch.Tensor
         """
         k = len(self.derivatives)
-        output = self.derivatives[0].moneyness(time_step,log)
-        for i in range(1,k):
-            output += self.derivatives[i].moneyness(time_step,log)
-        output = output/k
-        return output
+        return torch.sum(torch.stack([der.moneyness(time_step,log) for der in self.derivatives]),dim=0)/k
