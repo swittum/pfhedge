@@ -6,6 +6,7 @@ from pfhedge.nn import MultiLayerPerceptron, HedgeLoss, EntropicRiskMeasure, Ent
 from pfhedge.instruments import BaseInstrument, BasePrimary, BaseDerivative
 from pfhedge.instruments import BrownianStock,HestonStock,MertonJumpStock,RoughBergomiStock, LocalVolatilityStock
 from pfhedge.instruments import EuropeanOption,EuropeanBinaryOption,LookbackOption, AmericanBinaryOption, VarianceSwap, AsianOption, EuropeanForwardStartOption, FloatingAsianOption
+from pfhedge.instruments import MultiDerivative
 from utils import list_derivative, make_linear_volatility
 from models import MultiLayerHybrid, NoTransactionBandNet
 from quantum_circuits import QuantumCircuit,SimpleQuantumCircuit
@@ -53,8 +54,13 @@ def make_derivative(config: dict, underlier: BasePrimary) -> BaseDerivative:
                 'AsianOption': AsianOption,
                 'EuropeanForwardStartOption': EuropeanForwardStartOption,
                 'FloatingAsianOption': FloatingAsianOption,
+                'MultiDerivative': MultiDerivative
                 }
     derivative_type = options[config.get('type', 'EuropeanOption')]
+    if derivative_type == MultiDerivative:
+        derivatives_cfg = config.get('derivatives',[])
+        derivatives = [make_derivative(entry,underlier) for entry in derivatives_cfg]
+        return MultiDerivative(underlier,derivatives)
     cfg = dict_without_keys(config,'type','cost','clauses')
     derivative = derivative_type(underlier=underlier,**cfg)
     for clause in config.get('clauses', []):

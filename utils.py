@@ -1,10 +1,15 @@
 from typing import List,Union
-from pfhedge.instruments import BaseDerivative, EuropeanOption, EuropeanBinaryOption, AmericanBinaryOption, LookbackOption
+from pfhedge.instruments import BaseDerivative, EuropeanOption, EuropeanBinaryOption, AmericanBinaryOption, LookbackOption, MultiDerivative
 from pfhedge.instruments import VarianceSwap, AsianOption, EuropeanForwardStartOption
 from pfhedge.nn import BlackScholes
 def black_scholes_implemented(derivative: BaseDerivative):
-    list = [EuropeanOption,EuropeanBinaryOption,AmericanBinaryOption,LookbackOption]
-    return derivative.__class__ in list
+    if derivative.__class__ == MultiDerivative:
+        impl = [black_scholes_implemented(der) for der in derivative.derivatives]
+        return not False in impl
+    if derivative.__class__ == AmericanBinaryOption:
+        return derivative.call
+    lst = [EuropeanOption,EuropeanBinaryOption,LookbackOption]
+    return derivative.__class__ in lst
 def prepare_hedges(transaction_costs: Union[float, List[float]],*args):
     num_hedges = len(args)
     if num_hedges==0:
@@ -32,7 +37,7 @@ def prepare_features(derivative: BaseDerivative, prev_hedge: bool):
     if derivative.__class__ == EuropeanForwardStartOption:
         features = ["log_moneyness", "expiry_time", "volatility"]
     if features is None:
-        features= ['volatility', 'underlier_spot']
+        features= ['underlier_spot','volatility']
     if prev_hedge:
         features.append("prev_hedge")
     return features

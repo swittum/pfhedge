@@ -1,5 +1,5 @@
 from typing import Optional,List
-
+from math import ceil
 import torch
 from torch import Tensor
 
@@ -121,7 +121,9 @@ class MultiDerivative(BaseDerivative):
             raise ValueError("No derivatives specified")
         self.maturity = max([der.maturity for der in derivatives])
         self.derivatives = derivatives
-
+        #For compatibility with Whalley-Wilmott
+        self.strike = 1.0
+        self.steps = ceil(self.maturity / self.underlier.dt + 1)
         # TODO(simaki): Remove later. Deprecated for > v0.12.3
         if dtype is not None or device is not None:
             self.to(dtype=dtype, device=device)
@@ -161,3 +163,30 @@ class MultiDerivative(BaseDerivative):
         """
         k = len(self.derivatives)
         return torch.sum(torch.stack([der.moneyness(time_step,log) for der in self.derivatives]),dim=0)/k
+    def time_to_maturity(self, time_step: Optional[int] = None) -> Tensor:
+        """Returns the time to maturity of self.
+
+        Args:
+            time_step (int, optional): The time step to calculate
+                the time to maturity. If ``None`` (default), the time to
+                maturity is calculated at all time steps.
+
+        Shape:
+            - Output: :math:`(N, T)` where
+              :math:`N` is the number of paths and
+              :math:`T` is the number of time steps.
+              If ``time_step`` is given, the shape is :math:`(N, 1)`.
+
+        Returns:
+            torch.Tensor
+        """
+        n_paths, n_steps = self.underlier.spot.size()
+        if time_step is None:
+            # Time passed from the beginning
+            t = torch.arange(n_steps).to(self.underlier.spot) * self.underlier.dt
+            return (t[-1] - t).unsqueeze(0).expand(n_paths, -1)
+        else:
+            time = n_steps - (time_step % n_steps) - 1
+            t = torch.tensor([[time]]).to(self.underlier.spot) * self.underlier.dt
+            return t.expand(n_paths, -1)
+    
