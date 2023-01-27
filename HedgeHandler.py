@@ -3,7 +3,7 @@ from typing import List
 from pfhedge.nn import Hedger, HedgeLoss, WhalleyWilmott, Naked
 from plotting_library import save_training_diagram, save_pl_diagram
 class HedgeHandler:
-    def __init__(self, hedger: Hedger, derivative: BaseDerivative, hedge: List[BaseInstrument], fit_params: dict, profit_params: dict, criterion: HedgeLoss, benchmark_params):
+    def __init__(self, hedger: Hedger, derivative: BaseDerivative, hedge: List[BaseInstrument], fit_params: dict, profit_params: dict, criterion: HedgeLoss, benchmark_params: dict):
         self.hedger = hedger
         self.derivative = derivative
         self.hedge = hedge

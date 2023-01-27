@@ -14,7 +14,10 @@ class InputReader:
         hedge = make_hedge(self.config.get('hedge',{}),underlier)
         model = make_model(self.config.get('model',{}),len(hedge),derivative)
         loss = make_criterion(self.config.get('loss',{}))
-        features = self.config.get('features', prepare_features(derivative,False))
+        features = self.config.get('features', [])
+        if features == []:
+            NTB = self.config.get('model',{}).get('NTB',False)
+            features = prepare_features(derivative,NTB)
         hedger = Hedger(model,features,loss)
         fit_params = self.config.get('training',{})
         profit_params = self.config.get('profit',{})
