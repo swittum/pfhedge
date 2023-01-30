@@ -14,7 +14,6 @@ class BSMultiDerivative(torch.nn.Module):
         timestamp = self._get_timestamp(input[0][0][1].item())
         output = self.delta()
         return output[...,timestamp].unsqueeze(1).unsqueeze(1)
-        #return torch.sum(torch.stack([der.forward(input) for der in self.BSmodules]),0)
     def price(self)->Tensor:
         return torch.sum(torch.stack([der.price() for der in self.BSmodules]),0)
     def delta(self)->Tensor:

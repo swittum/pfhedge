@@ -7,7 +7,7 @@ class QuantumCircuit(ABC):
         super().__init__()
         self.n_inputs = 0
         self.n_outputs = 0
-        self.qnodes = []
+        self.weight_shape = ()
 
 class SimpleQuantumCircuit(QuantumCircuit):
     def __init__(self, n_qubits=2, n_layers=4, n_measurements = 0):
@@ -19,13 +19,14 @@ class SimpleQuantumCircuit(QuantumCircuit):
         self.n_inputs = n_qubits
         self.n_outputs = n_measurements
         dev = qml.device('default.qubit.jax', wires=n_qubits)
+        self.weight_shape = (n_layers,n_qubits)
         weights = self._get_weights((n_layers,n_qubits))
         #self.qnodes = [self._make_qnode(n_qubits,dev,weights,i) for i in range(n_measurements)]
-        self.qnode = self._make_qnode(n_qubits,dev, weights,n_measurements)
-    def _make_qnode(self, n_qubits, dev, weights, n_measurements):
+        self.qnode = self._make_qnode(n_qubits,dev,n_measurements)
+    def _make_qnode(self, n_qubits, dev, n_measurements):
         @jax.jit
         @qml.qnode(dev, interface='jax', shots=None, diff_method='best')
-        def qnode(inputs):
+        def qnode(inputs, weights):
             qml.AngleEmbedding(inputs, wires=range(n_qubits))
             qml.BasicEntanglerLayers(weights, wires=range(n_qubits))
             return [qml.expval(qml.PauliZ(wires=i)) for i in range(n_measurements)]
