@@ -20,7 +20,6 @@ class SimpleQuantumCircuit(QuantumCircuit):
         self.n_outputs = n_measurements
         dev = qml.device('default.qubit.jax', wires=n_qubits)
         self.weight_shape = (n_layers,n_qubits)
-        weights = self._get_weights((n_layers,n_qubits))
         #self.qnodes = [self._make_qnode(n_qubits,dev,weights,i) for i in range(n_measurements)]
         self.qnode = self._make_qnode(n_qubits,dev,n_measurements)
     def _make_qnode(self, n_qubits, dev, n_measurements):
@@ -32,6 +31,4 @@ class SimpleQuantumCircuit(QuantumCircuit):
             return [qml.expval(qml.PauliZ(wires=i)) for i in range(n_measurements)]
             #return qml.expval(qml.PauliZ(wires=i))
         return qnode
-    def _get_weights(self, shape):
-        return 2*np.pi*np.random.random_sample(shape)
 

@@ -76,3 +76,14 @@ class NoTransactionBandNet(Module):
         max = delta + fn.leaky_relu(width[..., [1]])
 
         return self.clamp(prev_hedge, min=min, max=max)
+
+from torch.nn.parameter import Parameter
+import torch
+class ConstantLayer(Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.bias = Parameter(torch.zeros(1,))
+    def forward(self, input: Tensor)-> Tensor:
+        shp = input.shape
+        output = self.bias.unsqueeze(0).unsqueeze(0)
+        return output.repeat(shp)
