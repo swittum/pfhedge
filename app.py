@@ -38,4 +38,5 @@ def run_hedging():
     for key in bench.keys():
         benchmark_figures[key] = figure_to_string(make_pl_diagram(bench[key]))
     return render_template("results.html", profit=result_model, bench=result_benchmark, train_fig = training_figure, profit_fig = profit_figure, bench_figs = benchmark_figures)
-app.run(debug=True)
+if __name__ == "__main__":
+    app.run('0.0.0.0')
