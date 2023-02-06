@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+import pandas as pd
 
 def to_numpy(tensor: torch.Tensor) -> np.array:
     return tensor.cpu().detach().numpy()
@@ -24,9 +25,11 @@ def save_training_diagram(history, path):
     plt.close()
 
 def save_multi_profit(profits,params,path, bench={}):
+    data = pd.DataFrame({'params':params,'shortfall':profits})
+    avg = data.groupby('params').mean()
     plt.figure()
     plt.xscale('log')
-    plt.plot(params,profits)
+    plt.plot(avg)
     plt.xlabel("Number of parameters")
     plt.ylabel("Expected Shortfall")
     plt.title("Performance by number of parameters")

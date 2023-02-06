@@ -1,4 +1,5 @@
 import yaml
+import pandas as pd
 from config_utils import make_underlier, make_derivative, make_hedge, make_model, make_criterion
 from pfhedge.nn import Hedger
 from utils import prepare_features
@@ -44,6 +45,8 @@ class InputReader:
             if n < len(features):
                 return features[:n]
             return features
+        mult = self.config.get('multiply',1)
+        param_nums *= mult
         if not quantum:
             hedgers = [Hedger(make_classical_model(n,len(features)),reduce_features(features,n),loss)for n in param_nums]
         else:

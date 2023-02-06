@@ -4,7 +4,7 @@ from torch.nn import Linear, Sequential
 from pfhedge.nn import MultiLayerPerceptron
 from models import ConstantLayer, MultiLayerHybrid
 from jaxlayer import JaxLayer
-from quantum_circuits import SimpleQuantumCircuit
+from quantum_circuits import SimpleQuantumCircuit, ReuploadingQuantumCircuit
 def classical_model_params(n_parameters: int, in_features: int, out_features: int = 1):
     if n_parameters <= 30:
         return [int((n_parameters-out_features)/(in_features+out_features+1))]
@@ -65,6 +65,6 @@ def make_quantum_model(n_parameters:int, n_features: int):
         return Sequential(init_lin,JaxLayer(circuit),exit_lin)
     classical_params = n_parameters - 41
     seq = classical_model_params(classical_params,n_features,5)
-    circuit = SimpleQuantumCircuit(5,7)
+    circuit = ReuploadingQuantumCircuit(5,3,2)
     return MultiLayerHybrid(circuit,n_features,1,len(seq),seq)
         
