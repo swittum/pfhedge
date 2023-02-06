@@ -42,6 +42,7 @@ class MultiLayerHybrid(Sequential):
                 layers.append(Linear(n_units[i - 1], n_units[i]))
             layers.append(deepcopy(activation))
         layers.append(Linear(n_units[-1], quantum.n_inputs))
+        layers.append(deepcopy(activation))
         layers.append(JaxLayer(quantum))
         layers.append(Linear(quantum.n_outputs,out_features))
         layers.append(deepcopy(out_activation))
