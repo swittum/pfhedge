@@ -2,7 +2,7 @@ from typing import Sequence, List
 from math import sqrt,log10
 from torch.nn import Linear, Sequential
 from pfhedge.nn import MultiLayerPerceptron
-from models import ConstantLayer, MultiLayerHybrid
+from models import ConstantLayer, MultiLayerHybrid, PreprocessingCircuit, NoPreprocessingCircuit
 from jaxlayer import JaxLayer
 from quantum_circuits import SimpleQuantumCircuit, ReuploadingQuantumCircuit
 def classical_model_params(n_parameters: int, in_features: int, out_features: int = 1):
@@ -55,14 +55,11 @@ def make_quantum_model(n_parameters:int, n_features: int):
         return JaxLayer(circuit)
     if n_parameters <= 60:
         circuit = SimpleQuantumCircuit(n_features,n_layers=int((n_parameters-1)/n_features-1),n_measurements=0)
-        lin = Linear(in_features=n_features,out_features=1)
-        return Sequential(JaxLayer(circuit),lin)
+        return NoPreprocessingCircuit(circuit)
     if n_parameters <= 90:
         quantum_parameters = n_parameters - 5*(n_features+1) - n_features- 1
         circuit = SimpleQuantumCircuit(5,n_layers=int(quantum_parameters/5),n_measurements=0)
-        init_lin = Linear(in_features=n_features,out_features=5)
-        exit_lin = Linear(in_features=5,out_features=1)
-        return Sequential(init_lin,JaxLayer(circuit),exit_lin)
+        return PreprocessingCircuit(circuit,n_features)
     classical_params = n_parameters - 41
     seq = classical_model_params(classical_params,n_features,5)
     circuit = ReuploadingQuantumCircuit(5,3,2)

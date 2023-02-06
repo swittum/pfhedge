@@ -42,6 +42,7 @@ class MultiLayerHybrid(Sequential):
                 layers.append(Linear(n_units[i - 1], n_units[i]))
             layers.append(deepcopy(activation))
         layers.append(Linear(n_units[-1], quantum.n_inputs))
+        layers.append(deepcopy(activation))
         layers.append(JaxLayer(quantum))
         layers.append(Linear(quantum.n_outputs,out_features))
         layers.append(deepcopy(out_activation))
@@ -87,3 +88,21 @@ class ConstantLayer(Module):
         shp = input.shape
         output = self.bias.unsqueeze(0).unsqueeze(0)
         return output.repeat(shp)
+
+class PreprocessingCircuit(MultiLayerHybrid):
+    def __init__(self,
+        quantum: QuantumCircuit,
+        in_features: int,
+        out_features: int = 1,
+        activation: Module = ReLU(),
+        out_activation: Module = Identity()):
+
+        super().__init__(quantum,in_features,out_features,0,[in_features],activation,out_activation)
+
+class NoPreprocessingCircuit(Sequential):
+    def __init__(self,quantum: QuantumCircuit, out_features = 1, out_activation: Module = Identity()):
+        layers: List[Module] = []
+        layers.append(JaxLayer(quantum))
+        layers.append(Linear(quantum.n_outputs,out_features))
+        layers.append(deepcopy(out_activation))
+        super().__init__(*layers)
