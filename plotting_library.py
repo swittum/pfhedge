@@ -31,10 +31,10 @@ def figure_to_string(figure):
     imgstring = base64.b64encode(fig.getvalue())
     return imgstring.decode('utf-8')
 
-def save_multi_profit(profits,params,path, bench={}):
+def make_multi_profit(profits,params, bench={}):
     data = pd.DataFrame({'params':params,'shortfall':profits})
     avg = data.groupby('params').mean()
-    plt.figure()
+    fig = plt.figure()
     plt.xscale('log')
     plt.plot(avg)
     plt.xlabel("Number of parameters")
@@ -44,5 +44,4 @@ def save_multi_profit(profits,params,path, bench={}):
         plt.axhline(bench['WW'], color='b')
     if 'No' in bench.keys():
         plt.axhline(bench['No'], color='r')
-    plt.savefig(path)
-    plt.close()
+    return fig

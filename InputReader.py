@@ -11,6 +11,8 @@ class InputReader:
         stream = open(filename, mode="r", encoding="utf-8")
         self.config = yaml.safe_load(stream)
         stream.close()
+    def is_multi(self) -> bool:
+        return ('parameters' in self.config.keys())
     def load_config(self) -> HedgeHandler:
         underlier = make_underlier(self.config.get('underlier',{}))
         derivative = make_derivative(self.config.get('derivative',{}), underlier)

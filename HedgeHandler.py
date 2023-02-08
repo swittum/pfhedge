@@ -24,7 +24,6 @@ class HedgeHandler:
             output['Whalley-Wilmott'] = comp
         if self.benchmark_params.get('NoHedge',False):
             nohedger = Hedger(Naked(),inputs=["empty"])
-            print("No hedge:")
             nohedge = nohedger.compute_pnl(self.derivative,**self.profit_params)
             output['No Hedge'] = nohedge
         return output
