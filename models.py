@@ -77,3 +77,32 @@ class NoTransactionBandNet(Module):
         max = delta + fn.leaky_relu(width[..., [1]])
 
         return self.clamp(prev_hedge, min=min, max=max)
+
+from torch.nn.parameter import Parameter
+import torch
+class ConstantLayer(Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.bias = Parameter(torch.zeros(1,))
+    def forward(self, input: Tensor)-> Tensor:
+        shp = input.shape
+        output = self.bias.unsqueeze(0).unsqueeze(0)
+        return output.repeat(shp)
+
+class PreprocessingCircuit(MultiLayerHybrid):
+    def __init__(self,
+        quantum: QuantumCircuit,
+        in_features: int,
+        out_features: int = 1,
+        activation: Module = ReLU(),
+        out_activation: Module = Identity()):
+
+        super().__init__(quantum,in_features,out_features,0,[in_features],activation,out_activation)
+
+class NoPreprocessingCircuit(Sequential):
+    def __init__(self,quantum: QuantumCircuit, out_features = 1, out_activation: Module = Identity()):
+        layers: List[Module] = []
+        layers.append(JaxLayer(quantum))
+        layers.append(Linear(quantum.n_outputs,out_features))
+        layers.append(deepcopy(out_activation))
+        super().__init__(*layers)
