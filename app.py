@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 from flask import Flask, request, redirect, flash, render_template, url_for
 import seaborn
 from InputReader import InputReader
@@ -13,8 +14,8 @@ def index():
 def upload_config():
     if request.method == 'POST':
         if 'config' not in request.files:
-           flash('Invalid request')
-           return redirect(request.url)
+            flash('Invalid request')
+            return redirect(request.url)
         file = request.files['config']
         if file.filename == '':
             flash('No file sent')
@@ -36,8 +37,8 @@ def run_hedging():
         training_figure = figure_to_string(make_training_diagram(training))
         profit_figure = figure_to_string(make_pl_diagram(profit))
         benchmark_figures = {}
-        for key in bench.keys():
-            benchmark_figures[key] = figure_to_string(make_pl_diagram(bench[key]))
+        for key,value in bench.items():
+            benchmark_figures[key] = figure_to_string(make_pl_diagram(value))
         return render_template("results.html", profit=result_model, bench=result_benchmark, train_fig = training_figure, profit_fig = profit_figure, bench_figs = benchmark_figures)
     handler = reader.load_multi_config()
     handler.fit()
