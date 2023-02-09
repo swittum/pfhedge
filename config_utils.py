@@ -9,7 +9,7 @@ from pfhedge.instruments import EuropeanOption,EuropeanBinaryOption,LookbackOpti
 from pfhedge.instruments import MultiDerivative
 from utils import list_derivative, make_linear_volatility
 from models import MultiLayerHybrid, NoTransactionBandNet
-from quantum_circuits import QuantumCircuit,SimpleQuantumCircuit
+from quantum_circuits import QuantumCircuit,SimpleQuantumCircuit,ReuploadingQuantumCircuit
 from clauses import add_cap_clause, add_knockin_clause, add_knockout_clause
 def dict_without_keys(dictionary: dict, *args: tuple[str]):
     copy = dict()
@@ -78,6 +78,7 @@ def make_hedge(config: dict, underlier:BasePrimary) -> List[BaseInstrument]:
     return hedge
 def make_circuit(config: dict) -> QuantumCircuit:
         options = {'SimpleQuantumCircuit': SimpleQuantumCircuit,
+                   'ReuploadingQuantumCircuit': ReuploadingQuantumCircuit
                    }
         model_type = options[config.get('type','SimpleQuantumCircuit')]
         cfg = dict_without_keys(config,'type')
