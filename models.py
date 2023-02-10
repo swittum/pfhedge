@@ -51,9 +51,8 @@ class MultiLayerHybrid(Sequential):
 
 import torch.nn.functional as fn
 from torch import Tensor
-from torch.nn import Module
 
-from pfhedge.nn import BlackScholes, Clamp, MultiLayerPerceptron
+from pfhedge.nn import BlackScholes, Clamp
 
 
 class NoTransactionBandNet(Module):
