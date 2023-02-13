@@ -1,6 +1,6 @@
 from pfhedge.instruments import BaseDerivative, BaseInstrument
 from typing import List
-from pfhedge.nn import Hedger, HedgeLoss, WhalleyWilmott, Naked
+from pfhedge.nn import Hedger, HedgeLoss, WhalleyWilmott, BlackScholes, Naked
 from plotting_library import make_training_diagram, make_pl_diagram
 import matplotlib.pyplot as plt
 class HedgeHandler:
@@ -19,10 +19,15 @@ class HedgeHandler:
     def benchmark(self):
         output = {}
         if self.benchmark_params.get('WhalleyWilmott',False):
-            compmodel = WhalleyWilmott(self.derivative) 
+            compmodel = WhalleyWilmott(self.derivative)
             comphedger = Hedger(compmodel, inputs=compmodel.inputs())
             comp = comphedger.compute_pnl(self.derivative, **self.profit_params)
             output['Whalley-Wilmott'] = comp
+        if self.benchmark_params.get('BlackScholes', False):
+            compmodel = BlackScholes(self.derivative)
+            comphedger = Hedger(compmodel, inputs=compmodel.inputs())
+            comp = comphedger.compute_pnl(self.derivative, **self.profit_params)
+            output['Black-Scholes'] = comp
         if self.benchmark_params.get('NoHedge',False):
             nohedger = Hedger(Naked(),inputs=["empty"])
             nohedge = nohedger.compute_pnl(self.derivative,**self.profit_params)
