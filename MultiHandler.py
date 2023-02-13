@@ -1,4 +1,5 @@
 from typing import List
+import matplotlib.pyplot as plt
 from HedgeHandler import HedgeHandler
 from plotting_library import make_multi_profit
 class MultiHandler:
@@ -19,4 +20,4 @@ class MultiHandler:
         profits = self.profit()
         fig = make_multi_profit(profits,self.params, bench)
         fig.savefig('paramsprofits.png')
-        fig.close()
+        plt.close(fig)
