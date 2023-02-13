@@ -27,6 +27,7 @@ def make_training_diagram(history):
 def figure_to_string(figure):
     fig = BytesIO()
     figure.savefig(fig,format='png')
+    plt.close(fig)
     fig.seek(0)
     imgstring = base64.b64encode(fig.getvalue())
     return imgstring.decode('utf-8')
@@ -40,8 +41,7 @@ def make_multi_profit(profits,params, bench={}):
     plt.xlabel("Number of parameters")
     plt.ylabel("Expected Shortfall")
     plt.title("Performance by number of parameters")
-    if 'WW' in bench.keys():
-        plt.axhline(bench['WW'], color='b')
-    if 'No' in bench.keys():
-        plt.axhline(bench['No'], color='r')
+    colors_dict = {'Whalley-Wilmott': 'b', 'No Hedge': 'r'}
+    for key,value in bench.items():
+        plt.axhline(value,colors_dict[key])
     return fig
