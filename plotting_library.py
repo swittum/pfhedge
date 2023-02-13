@@ -1,8 +1,8 @@
+from io import BytesIO
+import base64
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from io import BytesIO
-import base64
 import pandas as pd
 
 def to_numpy(tensor: torch.Tensor) -> np.array:

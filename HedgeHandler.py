@@ -1,8 +1,8 @@
-from pfhedge.instruments import BaseDerivative, BaseInstrument
 from typing import List
+import matplotlib.pyplot as plt
+from pfhedge.instruments import BaseDerivative, BaseInstrument
 from pfhedge.nn import Hedger, HedgeLoss, WhalleyWilmott, BlackScholes, Naked
 from plotting_library import make_training_diagram, make_pl_diagram
-import matplotlib.pyplot as plt
 class HedgeHandler:
     def __init__(self, hedger: Hedger, derivative: BaseDerivative, hedge: List[BaseInstrument], fit_params: dict, profit_params: dict, criterion: HedgeLoss, benchmark_params: dict):
         self.hedger = hedger
@@ -35,10 +35,10 @@ class HedgeHandler:
         return output
     def eval(self,pnl):
         return self.criterion(pnl).item()
-    def dict_eval(self,dict):
+    def dict_eval(self,dictionary):
         output = {}
-        for key in dict.keys():
-            output[key] = self.eval(dict[key])
+        for key in dictionary.keys():
+            output[key] = self.eval(dictionary[key])
         return output
     def full_process(self):
         history = self.fit()

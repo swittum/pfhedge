@@ -1,5 +1,4 @@
 import yaml
-import pandas as pd
 from config_utils import make_underlier, make_derivative, make_hedge, make_model, make_criterion
 from pfhedge.nn import Hedger
 from utils import prepare_features
