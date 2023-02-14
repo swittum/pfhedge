@@ -2,7 +2,7 @@ from typing import List
 import matplotlib.pyplot as plt
 from pfhedge.instruments import BaseDerivative, BaseInstrument
 from pfhedge.nn import Hedger, HedgeLoss, WhalleyWilmott, BlackScholes, Naked
-from plotting_library import make_training_diagram, make_pl_diagram
+from plotting_library import make_training_diagram, make_pl_diagram, make_stock_diagram
 class HedgeHandler:
     def __init__(self, hedger: Hedger, derivative: BaseDerivative, hedge: List[BaseInstrument], fit_params: dict, profit_params: dict, criterion: HedgeLoss, benchmark_params: dict):
         self.hedger = hedger
@@ -55,6 +55,13 @@ class HedgeHandler:
         for key, value in bench.items():
             fig = make_pl_diagram(value)
             fig.savefig(f'pl{(key[0:2].lower())}')
+            plt.close(fig)
+    def stock_diagrams(self, number):
+        self.derivative.simulate(number)
+        prices = self.derivative.underlier.spot
+        for i in range(number):
+            fig = make_stock_diagram(prices[i,...])
+            fig.savefig(f'stockdiagram{i}')
             plt.close(fig)
 
         
