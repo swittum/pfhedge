@@ -1,6 +1,4 @@
-import os
-import sys
-from flask import Flask, request, redirect, flash, render_template, url_for
+from flask import Flask, request, redirect, flash, render_template
 import seaborn
 from InputReader import InputReader
 from plotting_library import make_training_diagram, make_pl_diagram,make_multi_profit, figure_to_string

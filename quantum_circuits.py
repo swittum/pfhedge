@@ -1,6 +1,5 @@
 import pennylane as qml
 from abc import ABC
-import numpy as np
 import jax
 class QuantumCircuit(ABC):
     def __init__(self) -> None:
