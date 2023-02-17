@@ -50,7 +50,11 @@ def run_hedging():
 @app.route('/generate')
 def stock_diagrams():
     if 'samples' in request.args:
-        n_paths = int(request.args['samples'])
+        try:
+            n_paths = int(request.args['samples'])
+        except ValueError:
+            flash("Invalid number")
+            return redirect('/generate')
         reader = InputReader('upload.yaml')
         if reader.is_multi():
             multi = reader.load_multi_config()
