@@ -13,6 +13,7 @@ from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic import generate_geometric_brownian
 
 from .base import BasePrimary
+from cost_functions import CostFunction, ZeroCostFunction
 
 
 class BrownianStock(BasePrimary):
@@ -66,7 +67,7 @@ class BrownianStock(BasePrimary):
         self,
         sigma: float = 0.2,
         mu: float = 0.0,
-        cost: float = 0.0,
+        cost: CostFunction = ZeroCostFunction(),
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,

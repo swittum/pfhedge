@@ -13,7 +13,7 @@ from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic import generate_heston
 
 from .base import BasePrimary
-
+from cost_functions import CostFunction, ZeroCostFunction
 
 class HestonStock(BasePrimary):
     r"""A stock of which spot price and variance follow Heston process.
@@ -75,7 +75,7 @@ class HestonStock(BasePrimary):
         theta: float = 0.04,
         sigma: float = 0.2,
         rho: float = -0.7,
-        cost: float = 0.0,
+        cost: CostFunction = ZeroCostFunction(),
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,

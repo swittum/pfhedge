@@ -9,7 +9,7 @@ from pfhedge.nn.functional import ww_width
 from pfhedge.instruments import MultiDerivative
 
 from .bs.black_scholes import BlackScholes
-
+from cost_functions import ZeroCostFunction, LinearCostFunction
 
 class WhalleyWilmott(Module):
     r"""Creates a module for Whalley-Wilmott's hedging strategy.
@@ -146,6 +146,11 @@ class WhalleyWilmott(Module):
         Returns:
             torch.Tensor
         """
+        cost_func = self.derivative.underlier.cost
+        cost = 0.0
+        if isinstance(cost_func,LinearCostFunction):
+            cost = cost_func.cost
+        
         cost = self.derivative.underlier.cost
         spot = self.derivative.strike * input[..., [0]].exp()
         gamma = self.bs.gamma(*(input[..., [i]] for i in range(input.size(-1))))

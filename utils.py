@@ -2,6 +2,7 @@ from typing import List,Union
 from pfhedge.instruments import BaseDerivative, EuropeanOption, EuropeanBinaryOption, AmericanBinaryOption, LookbackOption, MultiDerivative
 from pfhedge.instruments import VarianceSwap, AsianOption, EuropeanForwardStartOption
 from pfhedge.nn import BlackScholes
+from cost_functions import CostFunction
 def black_scholes_implemented(derivative: BaseDerivative):
     if derivative.__class__ == MultiDerivative:
         impl = [black_scholes_implemented(der) for der in derivative.derivatives]
@@ -44,7 +45,7 @@ def prepare_features(derivative: BaseDerivative, prev_hedge: bool):
         
 
 
-def list_derivative(derivative: BaseDerivative,cost: float):
+def list_derivative(derivative: BaseDerivative,cost: CostFunction):
     pricer = None
     if derivative.__class__ == EuropeanOption or derivative.__class__ == EuropeanBinaryOption:
         pricer = lambda derivative: BlackScholes(derivative).price(
@@ -68,5 +69,15 @@ def make_linear_volatility(scale, bias=0.0):
         return scale*spot+bias
     return sigma_fn
 
-
-        
+def make_relative_cost(cost):
+    def cost_fn(trade):
+        return cost*trade
+    return cost_fn
+def make_absolute_cost(abscost, tolerance):
+    def cost_fn(trade):
+        return trade.clamp(0,tolerance)*abscost
+    return cost_fn
+def make_mixed_cost(cost,abscost,tolerance):
+    def cost_fn(trade):
+        return (cost*trade)+(trade.clamp(0,tolerance)*abscost)
+    return cost_fn

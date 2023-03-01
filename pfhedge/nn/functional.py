@@ -1,7 +1,6 @@
 import math
 from math import ceil
 from math import pi as kPI
-from typing import Callable
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -16,6 +15,7 @@ from torch.distributions.utils import broadcast_all
 import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import bisect
 from pfhedge._utils.typing import TensorOrScalar
+from cost_functions import CostFunction
 
 
 def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Tensor:
@@ -547,7 +547,7 @@ def realized_volatility(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
 def pl(
     spot: Tensor,
     unit: Tensor,
-    cost: Optional[List[float]] = None,
+    cost: Optional[List[CostFunction]] = None,
     payoff: Optional[Tensor] = None,
     deduct_first_cost: bool = True,
     deduct_final_cost: bool = False,
@@ -628,10 +628,8 @@ def pl(
         output -= payoff
 
     if cost is not None:
-        c = torch.tensor(cost, device=spot.device).unsqueeze(0).unsqueeze(-1)
-        output -= (spot[..., 1:] * unit.diff(dim=-1).abs() * c).sum(dim=(-2, -1))
-        if deduct_first_cost:
-            output -= (spot[..., [0]] * unit[..., [0]].abs() * c).sum(dim=(-2, -1))
+        costs = torch.stack([cost[i].apply(unit[:,i,:],spot[:,i,:],deduct_first_cost) for i in range(unit.shape[1])])
+        output-= costs.sum(0)
 
     return output
 
@@ -639,7 +637,7 @@ def pl(
 def terminal_value(
     spot: Tensor,
     unit: Tensor,
-    cost: Optional[List[float]] = None,
+    cost: Optional[List[CostFunction]] = None,
     payoff: Optional[Tensor] = None,
     deduct_first_cost: bool = True,
 ) -> Tensor:

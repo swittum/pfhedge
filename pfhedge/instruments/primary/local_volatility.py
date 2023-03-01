@@ -15,7 +15,7 @@ from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic import generate_local_volatility_process
 
 from .base import BasePrimary
-
+from cost_functions import CostFunction, ZeroCostFunction
 
 class LocalVolatilityStock(BasePrimary):
     r"""A stock of which spot prices follow the local volatility model.
@@ -52,7 +52,7 @@ class LocalVolatilityStock(BasePrimary):
     def __init__(
         self,
         sigma_fn: LocalVolatilityFunction,
-        cost: float = 0.0,
+        cost: CostFunction = ZeroCostFunction(),
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
