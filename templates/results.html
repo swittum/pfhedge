@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<title>Hedging results</title>
+<p>Loss:{{profit}}</p>
+{% for key in bench.keys() %}
+    <p>{{key}}:{{bench[key]}}</p>
+{% endfor %}
+<img src = "data:image/png;base64, {{train_fig}}" alt="Training diagram">
+<img src = "data:image/png;base64, {{profit_fig}}" alt="Profit-loss diagram">
+{% for key in bench_figs.keys() %}
+    <p>{{key}}:</p>
+    <img src = "data:image/png;base64, {{bench_figs[key]}}" alt="{{key}}"></p>
+{% endfor %}
+<p><a href='/'>Back to main page</a></p>

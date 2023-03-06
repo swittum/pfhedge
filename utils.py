@@ -65,7 +65,7 @@ def list_derivative(derivative: BaseDerivative,cost: float):
     
 def make_linear_volatility(scale, bias=0.0):
     def sigma_fn(time,spot):
-        scale*spot+bias
+        return scale*spot+bias
     return sigma_fn
 
 
