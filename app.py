@@ -1,6 +1,4 @@
-import os
-import sys
-from flask import Flask, request, redirect, flash, render_template, url_for
+from flask import Flask, request, redirect, flash, render_template
 import seaborn
 import matplotlib.pyplot as plt
 from InputReader import InputReader

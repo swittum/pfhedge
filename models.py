@@ -51,7 +51,6 @@ class MultiLayerHybrid(Sequential):
 
 import torch.nn.functional as fn
 from torch import Tensor
-
 from pfhedge.nn import BlackScholes, Clamp
 
 

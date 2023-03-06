@@ -1,6 +1,6 @@
-from typing import Sequence, List
+from typing import List
 from math import sqrt,log10
-from torch.nn import Linear, Sequential
+from torch.nn import Linear
 from pfhedge.nn import MultiLayerPerceptron
 from models import ConstantLayer, MultiLayerHybrid, PreprocessingCircuit, NoPreprocessingCircuit
 from jaxlayer import JaxLayer
