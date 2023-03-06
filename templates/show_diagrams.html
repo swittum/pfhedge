@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<title>Stock diagrams</title>
+{% for diag in figures %}
+    <p><img src = "data:image/png;base64, {{diag}}" alt="Stock diagram"></p>
+{% endfor %}
+<p><a href='/'>Back to main page</a></p>

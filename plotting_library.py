@@ -45,3 +45,10 @@ def make_multi_profit(profits,params, bench={}):
     for key,value in bench.items():
         plt.axhline(value,color=colors_dict[key])
     return fig
+
+def make_stock_diagram(listings):
+    fig = plt.figure()
+    plt.plot(to_numpy(listings))
+    plt.xlabel("Business day")
+    plt.ylabel("Stock price")
+    return fig
