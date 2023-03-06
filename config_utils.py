@@ -34,6 +34,7 @@ from quantum_circuits import (
     SimpleQuantumCircuit,
     ReuploadingQuantumCircuit,
 )
+
 from clauses import add_cap_clause, add_knockin_clause, add_knockout_clause
 
 
@@ -126,7 +127,6 @@ def make_circuit(config: dict) -> QuantumCircuit:
     model_type = options[config.get("type", "SimpleQuantumCircuit")]
     cfg = dict_without_keys(config, "type")
     return model_type(**cfg)
-
 
 def make_model(config: dict, n_hedges: int, derivative: BaseDerivative) -> Module:
     options = {
