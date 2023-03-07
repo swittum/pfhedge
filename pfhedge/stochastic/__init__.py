@@ -8,3 +8,4 @@ from .random import randn_antithetic
 from .random import randn_sobol_boxmuller
 from .rough_bergomi import generate_rough_bergomi
 from .vasicek import generate_vasicek
+from .variance_gamma import generate_variance_gamma
