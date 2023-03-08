@@ -5,7 +5,6 @@ from typing import Union
 
 import torch
 from torch import Tensor
-from math import pi
 
 from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic._utils import cast_state
@@ -20,7 +19,6 @@ def generate_variance_gamma(
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
-    engine: Callable[..., Tensor] = torch.randn,
 ) -> Tensor:
     r"""Returns time series following the Merton's Jump Diffusion Model.
 
@@ -82,9 +80,9 @@ def generate_variance_gamma(
                 [1.0000, 1.0035, 1.0041, 1.0377, 1.0345]])
     """
     init_state = cast_state(init_state, dtype=dtype, device=device)
-    gamma = torch.distributions.gamma.Gamma(dt/kappa,1.0)
+    gamma = torch.distributions.gamma.Gamma(dt/kappa,1.0).to(dtype=dtype, device=device)
     S = kappa * gamma.sample((n_paths,n_steps))
-    normal = torch.distributions.normal.Normal(0,1)
+    normal = torch.distributions.normal.Normal(0,1).to(dtype=dtype, device=device)
     N = normal.sample((n_paths,n_steps,))
     X = sigma*N*S.sqrt()+theta*S
     X[:,0] = 0.0

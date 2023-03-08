@@ -84,7 +84,6 @@ class VarianceGammaStock(BasePrimary):
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
-        engine: Callable[..., Tensor] = torch.randn,
     ) -> None:
         super().__init__()
 
@@ -93,7 +92,6 @@ class VarianceGammaStock(BasePrimary):
         self.kappa = kappa
         self.cost = cost
         self.dt = dt
-        self.engine = engine
 
         self.to(dtype=dtype, device=device)
 
@@ -155,7 +153,6 @@ class VarianceGammaStock(BasePrimary):
             dt=self.dt,
             dtype=self.dtype,
             device=self.device,
-            engine=self.engine,
         )
 
         self.register_buffer("spot", output)
