@@ -11,12 +11,12 @@ from pfhedge._utils.doc import _set_attr_and_docstring
 from pfhedge._utils.doc import _set_docstring
 from pfhedge._utils.str import _format_float
 from pfhedge._utils.typing import TensorOrScalar
-from pfhedge.stochastic import generate_variance_gamma
+from pfhedge.stochastic import generate_inverse_gaussian
 
 from .base import BasePrimary
 
 
-class VarianceGammaStock(BasePrimary):
+class InverseGaussianStock(BasePrimary):
     r"""A stock of which spot price and variance follow Merton Jump Diffusion process.
 
     .. seealso::
@@ -143,7 +143,7 @@ class VarianceGammaStock(BasePrimary):
         if init_state is None:
             init_state = self.default_init_state
 
-        output = generate_variance_gamma(
+        output = generate_inverse_gaussian(
             n_paths=n_paths,
             n_steps=ceil(time_horizon / self.dt + 1),
             init_state=init_state,

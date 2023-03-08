@@ -16,6 +16,7 @@ from pfhedge.instruments import (
     RoughBergomiStock,
     LocalVolatilityStock,
     VarianceGammaStock,
+    InverseGaussianStock,
 )
 from pfhedge.instruments import (
     EuropeanOption,
@@ -61,7 +62,8 @@ def make_underlier(config: dict) -> BasePrimary:
         "MertonJumpStock": MertonJumpStock,
         "RoughBergomiStock": RoughBergomiStock,
         "LocalVolatilityStock": LocalVolatilityStock,
-        "VarianceGammaStock": VarianceGammaStock
+        "VarianceGammaStock": VarianceGammaStock,
+        "InverseGaussianStock": InverseGaussianStock
     }
     underlier_type = options[config.get("type", "BrownianStock")]
     if underlier_type == LocalVolatilityStock:

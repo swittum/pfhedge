@@ -23,3 +23,4 @@ from .primary.merton_jump import MertonJumpStock
 from .primary.rough_bergomi import RoughBergomiStock
 from .primary.vasicek import VasicekRate
 from .primary.variance_gamma import VarianceGammaStock
+from .primary.inverse_gaussian import InverseGaussianStock

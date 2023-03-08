@@ -8,8 +8,16 @@ from torch import Tensor
 
 from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic._utils import cast_state
+def inverse_gaussian_func(n_paths: int, n_steps: int, lmd: float, mu: float, dtype: Optional[torch.dtype] = None, device: Optional[torch.device] = None,)-> Tensor:
+    normal = torch.distributions.normal.Normal(0,1)
+    uniform = torch.distributions.uniform.Uniform(0,1)
+    Y = (normal.sample((n_paths,n_steps)).to(dtype=dtype, device=device))**2
+    X = mu+(mu**2*Y)/(2*lmd)-(mu/(2*lmd)*(4*mu*lmd*Y+mu**2*Y**2))
+    U = uniform.sample((n_paths,n_steps)).to(dtype=dtype, device=device)
+    comp = torch.greater_equal(mu/(X+mu),U)
+    return comp*X+torch.bitwise_not(comp)*mu**2/X
 
-def generate_variance_gamma(
+def generate_inverse_gaussian(
     n_paths: int,
     n_steps: int,
     init_state: Union[Tuple[TensorOrScalar, ...], TensorOrScalar] = (1.0,),
@@ -80,8 +88,7 @@ def generate_variance_gamma(
                 [1.0000, 1.0035, 1.0041, 1.0377, 1.0345]])
     """
     init_state = cast_state(init_state, dtype=dtype, device=device)
-    gamma = torch.distributions.gamma.Gamma(dt/kappa,1.0)
-    S = kappa * gamma.sample((n_paths,n_steps)).to(dtype=dtype, device=device)
+    S = inverse_gaussian_func(n_paths,n_steps,dt**2/kappa,dt,dtype=dtype,device=device)
     normal = torch.distributions.normal.Normal(0,1)
     N = normal.sample((n_paths,n_steps,)).to(dtype=dtype, device=device)
     X = sigma*N*S.sqrt()+theta*S
