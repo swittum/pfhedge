@@ -168,5 +168,5 @@ class VarianceGammaStock(BasePrimary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-#_set_docstring(MertonJumpStock, "default_init_state", BasePrimary.default_init_state)
-#_set_attr_and_docstring(MertonJumpStock, "to", BasePrimary.to)
+_set_docstring(VarianceGammaStock, "default_init_state", BasePrimary.default_init_state)
+_set_attr_and_docstring(VarianceGammaStock, "to", BasePrimary.to)
