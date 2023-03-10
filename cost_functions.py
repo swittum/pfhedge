@@ -15,7 +15,7 @@ class LinearCostFunction(CostFunction):
         costs = self.cost*spot[...,1:]*trades.diff(dim=-1).abs()
         total = costs.sum(-1)
         if apply_first_cost:
-            total += spot[...,0]*trades[...,0]*self.cost
+            total += spot[...,0]*trades[...,0].abs()*self.cost
         return total
 
 class AbsoluteCostFunction(CostFunction):
@@ -24,10 +24,10 @@ class AbsoluteCostFunction(CostFunction):
         self.tolerance = tolerance
         self.factor = abscost/tolerance
     def apply(self, trades: Tensor, spot: Tensor, apply_first_cost: bool = True) -> Tensor:
-        costs = self.factor*(spot[...,1:]*trades.diff(dim=-1).abs()).clamp(max=self.tolerance)
+        costs = (spot[...,1:]*trades.diff(dim=-1).abs()).clamp(max=self.tolerance)*self.factor
         total = costs.sum(-1)
         if apply_first_cost:
-            total += (spot[...,0]*trades[...,0]).clamp(max=self.tolerance)*self.factor
+            total += (spot[...,0]*trades[...,0].abs()).clamp(max=self.tolerance)*self.factor
         return total
 
 class MixedCostFunction(CostFunction):
@@ -37,10 +37,10 @@ class MixedCostFunction(CostFunction):
         self.tolerance = tolerance
         self.factor = abscost/tolerance
     def apply(self, trades: Tensor, spot: Tensor, apply_first_cost: bool = True) -> Tensor:
-        costs = self.factor*(spot[...,1:]*trades.diff(dim=-1).abs()).clamp(max=self.tolerance)
+        costs = (spot[...,1:]*trades.diff(dim=-1).abs()).clamp(max=self.tolerance)*self.factor
         costs += self.cost*spot[...,1:]*trades.diff(dim=-1).abs()
         total = costs.sum(-1)
         if apply_first_cost:
-            total += spot[...,0]*trades[...,0]*self.cost
-            total += (spot[...,0]*trades[...,0]).clamp(max=self.tolerance)*self.factor
+            total += spot[...,0]*trades[...,0].abs()*self.cost
+            total += (spot[...,0]*trades[...,0].abs()).clamp(max=self.tolerance)*self.factor
         return total
