@@ -1,15 +1,17 @@
 from typing import List
+from typing import Tuple
 
+import torch
 from torch import Tensor
 from torch.nn import Module
 
 from pfhedge._utils.str import _format_float
-from pfhedge.nn.functional import ww_width
+from pfhedge.nn.functional import ww_width, ww_width_abs, ww_mixed_batch
 
 from pfhedge.instruments import MultiDerivative
 
 from .bs.black_scholes import BlackScholes
-from cost_functions import ZeroCostFunction, LinearCostFunction
+from cost_functions import ZeroCostFunction, LinearCostFunction, AbsoluteCostFunction, MixedCostFunction
 
 class WhalleyWilmott(Module):
     r"""Creates a module for Whalley-Wilmott's hedging strategy.
@@ -125,12 +127,16 @@ class WhalleyWilmott(Module):
 
         delta = self.bs(input[..., :-1])
         width = self.width(input[..., :-1])
-        min = delta - width
-        max = delta + width
+        min = delta - width[0]
+        max = delta + width[0]
+        lower = delta - width[1]
+        higher = delta + width[1]
+        below = torch.less(prev_hedge,min)
+        above = torch.greater_equal(prev_hedge,max)
+        in_interval = torch.bitwise_not(torch.bitwise_or(below,above))
+        return in_interval*prev_hedge+below*lower+above*higher
 
-        return prev_hedge.clamp(min=min, max=max)
-
-    def width(self, input: Tensor) -> Tensor:
+    def width(self, input: Tensor) -> Tuple[Tensor]:
         r"""Returns half-width of the no-transaction band.
 
         Args:
@@ -147,12 +153,19 @@ class WhalleyWilmott(Module):
             torch.Tensor
         """
         cost_func = self.derivative.underlier.cost
-        cost = 0.0
-        if isinstance(cost_func,LinearCostFunction):
-            cost = cost_func.cost
-        
-        cost = self.derivative.underlier.cost
         spot = self.derivative.strike * input[..., [0]].exp()
         gamma = self.bs.gamma(*(input[..., [i]] for i in range(input.size(-1))))
+        if isinstance(cost_func, MixedCostFunction):
+            cost = cost_func.cost
+            abscost = cost_func.factor*cost_func.tolerance
+            return ww_mixed_batch(gamma,spot,cost,abscost,self.a)
+        if isinstance(cost_func, AbsoluteCostFunction):
+            abscost = cost_func.factor*cost_func.tolerance
+            return ww_width_abs(gamma,abscost,self.a),0.0
+        if isinstance(cost_func, ZeroCostFunction):
+            cost = 0.0
+        if isinstance(cost_func, LinearCostFunction):
+            cost = cost_func.cost
+        width = ww_width(gamma=gamma, spot=spot, cost=cost, a=self.a)
         #width = (cost * (3 / 2) * gamma.square() * spot / self.a).pow(1 / 3)
-        return ww_width(gamma=gamma, spot=spot, cost=cost, a=self.a)
+        return width,width

@@ -12,6 +12,8 @@ from torch import Tensor
 from torch.distributions.normal import Normal
 from torch.distributions.utils import broadcast_all
 
+from scipy.optimize import fsolve
+
 import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import bisect
 from pfhedge._utils.typing import TensorOrScalar
@@ -790,7 +792,41 @@ def ww_width(
     """
     return (cost * (3 / 2) * gamma.square() * spot / a).pow(1 / 3)
 
+def ww_width_abs(
+    gamma: Tensor, abscost: TensorOrScalar, a: TensorOrScalar = 1.0
+) -> Tensor:
+    r"""Returns half-width of the no-transaction band for
+    Whalley-Wilmott's hedging strategy.
 
+    See :class:`pfhedge.nn.WhalleyWilmott` for details.
+
+    Args:
+        gamma (torch.Tensor): The gamma of the derivative,
+        spot (torch.Tensor): The spot price of the underlier.
+        cost (torch.Tensor or float): The cost rate of the underlier.
+        a (torch.Tensor or float, default=1.0): Risk aversion parameter in exponential utility.
+
+    Returns:
+        torch.Tensor
+    """
+    return (12* abscost * gamma.square() / a).pow(1 / 4)
+def ww_mixed_func(gamma: float, spot: float, cost: float, abscost: float, a: float = 1.0):
+    def equations(x):
+        return [x[0]*x[1]*(x[0]+x[1])-(3*cost*spot*gamma**2/a),(x[0]-x[1])**3*(x[0]+x[1])-(12*abscost*gamma**2/a)]
+    return fsolve(equations,[1,1])
+def ww_mixed_batch(gamma: Tensor, spot: Tensor, cost: float, abscost: float, a: float = 1.0):
+    shp = spot.shape
+    gammas = gamma.flatten()
+    spots = spot.flatten()
+    width = torch.zeros_like(spot)
+    rebalance = torch.zeros_like(spot)
+    for i in range(spot.size(0)):
+        temp=ww_mixed_func(gammas[i],spots[i],cost,abscost,a)
+        width[i]=temp[0]
+        rebalance[i]=temp[1]
+    width.reshape(shp)
+    rebalance.reshape(shp)
+    return width,rebalance
 def svi_variance(
     input: TensorOrScalar,
     a: TensorOrScalar,
