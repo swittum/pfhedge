@@ -1,7 +1,6 @@
 from math import ceil
 from typing import Optional
 from typing import Tuple
-from typing import Union
 
 import torch
 from torch import Tensor
@@ -168,6 +167,9 @@ class HestonJumpStock(BasePrimary):
             "theta=" + _format_float(self.theta),
             "sigma=" + _format_float(self.sigma),
             "rho=" + _format_float(self.rho),
+            "jump_per_year=" + _format_float(self.jump_per_year),
+            "jump_mean=" + _format_float(self.jump_mean),
+            "jump_std=" + _format_float(self.jump_std),
         ]
         if self.cost != 0.0:
             params.append("cost=" + _format_float(self.cost))
@@ -176,5 +178,5 @@ class HestonJumpStock(BasePrimary):
 
 
 # Assign docstrings so they appear in Sphinx documentation
-#_set_docstring(HestonStock, "default_init_state", BasePrimary.default_init_state)
-#_set_attr_and_docstring(HestonStock, "to", BasePrimary.to)
+_set_docstring(HestonJumpStock, "default_init_state", BasePrimary.default_init_state)
+_set_attr_and_docstring(HestonJumpStock, "to", BasePrimary.to)
