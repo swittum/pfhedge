@@ -810,11 +810,13 @@ def ww_width_abs(
         torch.Tensor
     """
     return (12* abscost * gamma.square() / a).pow(1 / 4)
-def ww_mixed_func(gamma: float, spot: float, cost: float, abscost: float, a: float = 1.0):
+
+def ww_mixed_func(gamma: float, spot: float, cost: float, abscost: float, a: float = 1.0) -> tuple[float, float]:
     def equations(x):
         return [x[0]*x[1]*(x[0]+x[1])-(3*cost*spot*gamma**2/a),(x[0]-x[1])**3*(x[0]+x[1])-(12*abscost*gamma**2/a)]
     return fsolve(equations,[1,1])
-def ww_mixed_batch(gamma: Tensor, spot: Tensor, cost: float, abscost: float, a: float = 1.0):
+
+def ww_mixed_batch(gamma: Tensor, spot: Tensor, cost: float, abscost: float, a: float = 1.0) -> tuple[Tensor, Tensor]:
     shp = spot.shape
     gammas = gamma.flatten()
     spots = spot.flatten()
@@ -827,6 +829,7 @@ def ww_mixed_batch(gamma: Tensor, spot: Tensor, cost: float, abscost: float, a: 
     width.reshape(shp)
     rebalance.reshape(shp)
     return width,rebalance
+
 def svi_variance(
     input: TensorOrScalar,
     a: TensorOrScalar,
