@@ -35,7 +35,7 @@ from quantum_circuits import (
     ReuploadingQuantumCircuit,
 )
 from clauses import add_cap_clause, add_knockin_clause, add_knockout_clause
-from cost_functions import CostFunction,ZeroCostFunction,LinearCostFunction,AbsoluteCostFunction,MixedCostFunction
+from cost_functions import CostFunction,ZeroCostFunction,RelativeCostFunction,AbsoluteCostFunction,MixedCostFunction
 
 def dict_without_keys(dictionary: dict, *args: tuple[str]):
     copy = dict()
@@ -53,7 +53,7 @@ def make_variance_function(config: dict) -> Callable:
 
 def make_cost(config: dict) -> CostFunction:
     options = {"ZeroCostFunction": ZeroCostFunction,
-               "LinearCostFunction": LinearCostFunction,
+               "RelativeCostFunction": RelativeCostFunction,
                "AbsoluteCostFunction": AbsoluteCostFunction,
                "MixedCostFunction": MixedCostFunction,
                }

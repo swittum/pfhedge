@@ -7,7 +7,7 @@ class CostFunction(ABC):
 class ZeroCostFunction(CostFunction):
     def apply(self, trades: Tensor, spot: Tensor, apply_first_cost: bool = True) -> Tensor:
         return zeros(trades.shape[0])
-class LinearCostFunction(CostFunction):
+class RelativeCostFunction(CostFunction):
     def __init__(self,cost : float) -> None:
         super().__init__()
         self.cost = cost
