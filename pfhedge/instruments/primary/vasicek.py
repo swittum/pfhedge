@@ -107,8 +107,8 @@ class VasicekRate(BasePrimary):
             "theta=" + _format_float(self.theta),
             "sigma=" + _format_float(self.sigma),
         ]
-        if self.cost != 0.0:
-            params.append("cost=" + _format_float(self.cost))
+        #if self.cost != 0.0:
+#            params.append("cost=" + #_format_float(self.cost))
         params.append("dt=" + _format_float(self.dt))
         return ", ".join(params)
 

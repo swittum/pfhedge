@@ -171,8 +171,8 @@ class HestonJumpStock(BasePrimary):
             "jump_mean=" + _format_float(self.jump_mean),
             "jump_std=" + _format_float(self.jump_std),
         ]
-        if self.cost != 0.0:
-            params.append("cost=" + _format_float(self.cost))
+        #if self.cost != 0.0:
+#            params.append("cost=" + #_format_float(self.cost))
         params.append("dt=" + _format_float(self.dt))
         return ", ".join(params)
 

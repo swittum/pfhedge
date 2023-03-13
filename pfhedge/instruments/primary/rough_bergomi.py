@@ -150,8 +150,8 @@ class RoughBergomiStock(BasePrimary):
             "eta=" + _format_float(self.eta),
             "xi=" + _format_float(self.xi),
         ]
-        if self.cost != 0.0:
-            params.append("cost=" + _format_float(self.cost))
+        #if self.cost != 0.0:
+#            params.append("cost=" + #_format_float(self.cost))
         params.append("dt=" + _format_float(self.dt))
         return ", ".join(params)
 
