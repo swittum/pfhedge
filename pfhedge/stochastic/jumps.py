@@ -3,9 +3,9 @@ from torch import Tensor
 from typing import Optional,Callable
 def generate_jumps(n_paths: int,
     n_steps: int,
-    jump_per_year=68,
+    jump_per_year=1.0,
     jump_mean=0.0,
-    jump_std=0.01,
+    jump_std=0.3,
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
