@@ -12,7 +12,7 @@ from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic import generate_rough_bergomi
 
 from .base import BasePrimary
-
+from cost_functions import CostFunction,ZeroCostFunction
 
 class RoughBergomiStock(BasePrimary):
     r"""A stock of which spot price and variance follow rough Bergomi (rBergomi) process.
@@ -74,7 +74,7 @@ class RoughBergomiStock(BasePrimary):
         rho: float = -0.9,
         eta: float = 1.9,
         xi: float = 0.04,
-        cost: float = 0.0,
+        cost: CostFunction = ZeroCostFunction(),
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,

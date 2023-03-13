@@ -19,6 +19,8 @@ from pfhedge._utils.typing import TensorOrScalar
 from ..base import BaseInstrument
 from ..primary.base import BasePrimary
 
+from cost_functions import CostFunction, ZeroCostFunction
+
 T = TypeVar("T", bound="BaseDerivative")
 Clause = Callable[[T, Tensor], Tensor]
 
@@ -44,7 +46,7 @@ class BaseDerivative(BaseInstrument):
     """
 
     underlier: BasePrimary
-    cost: float
+    cost: CostFunction
     maturity: float
     pricer: Optional[Callable[[Any], Tensor]]
     _clauses: Dict[str, Clause]
@@ -53,7 +55,7 @@ class BaseDerivative(BaseInstrument):
     def __init__(self) -> None:
         super().__init__()
         self.pricer = None
-        self.cost = 0.0
+        self.cost = ZeroCostFunction()
         self._clauses = OrderedDict()
         self._underliers = OrderedDict()
 
@@ -136,7 +138,7 @@ class BaseDerivative(BaseInstrument):
             payoff = clause(self, payoff)
         return payoff
 
-    def list(self: T, pricer: Callable[[T], Tensor], cost: float = 0.0) -> None:
+    def list(self: T, pricer: Callable[[T], Tensor], cost: CostFunction = ZeroCostFunction()) -> None:
         """Make self a listed derivative.
 
         After this method self will be a exchange-traded derivative which can be transacted
@@ -158,7 +160,7 @@ class BaseDerivative(BaseInstrument):
         After this method self will be a private derivative.
         """
         self.pricer = None
-        self.cost = 0.0
+        self.cost = ZeroCostFunction()
 
     @property
     def is_listed(self) -> bool:

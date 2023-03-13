@@ -8,6 +8,7 @@ from typing import no_type_check
 
 import torch
 from torch import Tensor
+from cost_functions import CostFunction
 
 T = TypeVar("T", bound="BaseInstrument")
 
@@ -15,7 +16,7 @@ T = TypeVar("T", bound="BaseInstrument")
 class BaseInstrument(ABC):
     """Base class for all financial instruments."""
 
-    cost: float
+    cost: CostFunction
 
     @property
     @abstractmethod

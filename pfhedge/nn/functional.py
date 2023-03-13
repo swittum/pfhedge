@@ -1,7 +1,6 @@
 import math
 from math import ceil
 from math import pi as kPI
-from typing import Callable
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -13,9 +12,12 @@ from torch import Tensor
 from torch.distributions.normal import Normal
 from torch.distributions.utils import broadcast_all
 
+from scipy.optimize import fsolve
+
 import pfhedge.autogreek as autogreek
 from pfhedge._utils.bisect import bisect
 from pfhedge._utils.typing import TensorOrScalar
+from cost_functions import CostFunction
 
 
 def european_payoff(input: Tensor, call: bool = True, strike: float = 1.0) -> Tensor:
@@ -547,7 +549,7 @@ def realized_volatility(input: Tensor, dt: Union[Tensor, float]) -> Tensor:
 def pl(
     spot: Tensor,
     unit: Tensor,
-    cost: Optional[List[float]] = None,
+    cost: Optional[List[CostFunction]] = None,
     payoff: Optional[Tensor] = None,
     deduct_first_cost: bool = True,
     deduct_final_cost: bool = False,
@@ -628,10 +630,8 @@ def pl(
         output -= payoff
 
     if cost is not None:
-        c = torch.tensor(cost, device=spot.device).unsqueeze(0).unsqueeze(-1)
-        output -= (spot[..., 1:] * unit.diff(dim=-1).abs() * c).sum(dim=(-2, -1))
-        if deduct_first_cost:
-            output -= (spot[..., [0]] * unit[..., [0]].abs() * c).sum(dim=(-2, -1))
+        costs = torch.stack([cost[i].apply(unit[:,i,:],spot[:,i,:],deduct_first_cost) for i in range(unit.shape[1])])
+        output-= costs.sum(0)
 
     return output
 
@@ -639,7 +639,7 @@ def pl(
 def terminal_value(
     spot: Tensor,
     unit: Tensor,
-    cost: Optional[List[float]] = None,
+    cost: Optional[List[CostFunction]] = None,
     payoff: Optional[Tensor] = None,
     deduct_first_cost: bool = True,
 ) -> Tensor:
@@ -792,6 +792,43 @@ def ww_width(
     """
     return (cost * (3 / 2) * gamma.square() * spot / a).pow(1 / 3)
 
+def ww_width_abs(
+    gamma: Tensor, abscost: TensorOrScalar, a: TensorOrScalar = 1.0
+) -> Tensor:
+    r"""Returns half-width of the no-transaction band for
+    Whalley-Wilmott's hedging strategy.
+
+    See :class:`pfhedge.nn.WhalleyWilmott` for details.
+
+    Args:
+        gamma (torch.Tensor): The gamma of the derivative,
+        spot (torch.Tensor): The spot price of the underlier.
+        cost (torch.Tensor or float): The cost rate of the underlier.
+        a (torch.Tensor or float, default=1.0): Risk aversion parameter in exponential utility.
+
+    Returns:
+        torch.Tensor
+    """
+    return (12* abscost * gamma.square() / a).pow(1 / 4)
+
+def ww_mixed_func(gamma: float, spot: float, cost: float, abscost: float, a: float = 1.0) -> tuple[float, float]:
+    def equations(x):
+        return [x[0]*x[1]*(x[0]+x[1])-(3*cost*spot*gamma**2/a),(x[0]-x[1])**3*(x[0]+x[1])-(12*abscost*gamma**2/a)]
+    return fsolve(equations,[1,1])
+
+def ww_mixed_batch(gamma: Tensor, spot: Tensor, cost: float, abscost: float, a: float = 1.0) -> tuple[Tensor, Tensor]:
+    shp = spot.shape
+    gammas = gamma.flatten()
+    spots = spot.flatten()
+    width = torch.zeros_like(spot)
+    rebalance = torch.zeros_like(spot)
+    for i in range(spot.size(0)):
+        temp=ww_mixed_func(gammas[i],spots[i],cost,abscost,a)
+        width[i]=temp[0]
+        rebalance[i]=temp[1]
+    width.reshape(shp)
+    rebalance.reshape(shp)
+    return width,rebalance
 
 def svi_variance(
     input: TensorOrScalar,

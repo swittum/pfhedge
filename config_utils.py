@@ -39,7 +39,7 @@ from quantum_circuits import (
 )
 
 from clauses import add_cap_clause, add_knockin_clause, add_knockout_clause
-
+from cost_functions import CostFunction,ZeroCostFunction,RelativeCostFunction,AbsoluteCostFunction,MixedCostFunction
 
 def dict_without_keys(dictionary: dict, *args: tuple[str]):
     copy = dict()
@@ -55,6 +55,16 @@ def make_variance_function(config: dict) -> Callable:
     cfg = dict_without_keys(config, "type")
     return variance_type(**cfg)
 
+def make_cost(config: dict) -> CostFunction:
+    options = {"ZeroCostFunction": ZeroCostFunction,
+               "RelativeCostFunction": RelativeCostFunction,
+               "AbsoluteCostFunction": AbsoluteCostFunction,
+               "MixedCostFunction": MixedCostFunction,
+               }
+    cost_type = options[config.get("type","ZeroCostFunction")]
+    cfg = dict_without_keys(config,"type")
+    return cost_type(**cfg)
+
 
 def make_underlier(config: dict) -> BasePrimary:
     options = {
@@ -68,12 +78,13 @@ def make_underlier(config: dict) -> BasePrimary:
         "HestonJumpStock": HestonJumpStock,
     }
     underlier_type = options[config.get("type", "BrownianStock")]
+    cost = make_cost(config.get("cost",{}))
     if underlier_type == LocalVolatilityStock:
         sigma_fn = make_variance_function(config.get("sigma_fn", {}))
-        cfg = dict_without_keys(config, "type", "sigma_fn")
-        return underlier_type(sigma_fn=sigma_fn, **cfg)
-    cfg = dict_without_keys(config, "type")
-    return underlier_type(**cfg)
+        cfg = dict_without_keys(config, "type", "cost", "sigma_fn")
+        return underlier_type(sigma_fn=sigma_fn, cost=cost, **cfg)
+    cfg = dict_without_keys(config, "type", "cost")
+    return underlier_type(cost=cost, **cfg)
 
 
 def add_clause(config: dict, derivative: BaseDerivative):
@@ -120,7 +131,8 @@ def make_hedge(config: dict, underlier: BasePrimary) -> List[BaseInstrument]:
     derivative_list = config.get("derivatives", [])
     for entry in derivative_list:
         der = make_derivative(entry, underlier)
-        list_derivative(der, entry.get("cost", 0.0))
+        cost = make_cost(entry.get("cost",{}))
+        list_derivative(der, cost=cost)
         hedge.append(der)
     return hedge
 
