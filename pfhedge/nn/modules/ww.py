@@ -162,10 +162,9 @@ class WhalleyWilmott(Module):
         if isinstance(cost_func, AbsoluteCostFunction):
             abscost = cost_func.factor*cost_func.tolerance
             return ww_width_abs(gamma,abscost,self.a),0.0
-        if isinstance(cost_func, ZeroCostFunction):
-            cost = 0.0
         if isinstance(cost_func, RelativeCostFunction):
             cost = cost_func.cost
-        width = ww_width(gamma=gamma, spot=spot, cost=cost, a=self.a)
-        #width = (cost * (3 / 2) * gamma.square() * spot / self.a).pow(1 / 3)
-        return width,width
+            width = ww_width(gamma=gamma, spot=spot, cost=cost, a=self.a)
+            #width = (cost * (3 / 2) * gamma.square() * spot / self.a).pow(1 / 3)
+            return width,width
+        return 0.0,0.0
