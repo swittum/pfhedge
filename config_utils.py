@@ -30,7 +30,8 @@ from pfhedge.instruments import (
     FloatingAsianOption,
 )
 from pfhedge.instruments import MultiDerivative
-from utils import list_derivative, make_linear_volatility
+from utils import list_derivative
+from utils import make_linear_volatility, make_cev_volatility, make_time_volatility
 from models import MultiLayerHybrid, NoTransactionBandNet
 from quantum_circuits import (
     QuantumCircuit,
@@ -50,8 +51,8 @@ def dict_without_keys(dictionary: dict, *args: tuple[str]):
 
 
 def make_variance_function(config: dict) -> Callable:
-    options = {"linear": make_linear_volatility}
-    variance_type = options[config.get("type", "linear")]
+    options = {"linear": make_linear_volatility, "CEV": make_cev_volatility, 'time': make_time_volatility}
+    variance_type = options[config.get("type", "CEV")]
     cfg = dict_without_keys(config, "type")
     return variance_type(**cfg)
 

@@ -64,11 +64,18 @@ def list_derivative(derivative: BaseDerivative,cost: CostFunction):
         raise TypeError("Tried to list unsupported derivative type, must have Black-Scholes support or be variance swap")
     derivative.list(pricer,cost)
     
-def make_linear_volatility(scale, bias=0.0):
+def make_linear_volatility(scale=0.1, bias=0.1):
     def sigma_fn(time,spot):
         return scale*spot+bias
     return sigma_fn
-
+def make_cev_volatility(sigma=0.2, gamma=0.9):
+    def sigma_fn(time,spot):
+        return sigma*spot**(gamma-1)
+    return sigma_fn
+def make_time_volatility(sigma=0.2, alpha=1):
+    def sigma_fn(time,spot):
+        return sigma*(alpha*time).exp()
+    return sigma_fn
 def make_relative_cost(cost):
     def cost_fn(trade):
         return cost*trade
