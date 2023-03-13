@@ -12,7 +12,7 @@ from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic import generate_heston, generate_jumps
 
 from .base import BasePrimary
-
+from cost_functions import CostFunction, ZeroCostFunction
 
 class HestonJumpStock(BasePrimary):
     r"""A stock of which spot price and variance follow Heston process.
@@ -77,7 +77,7 @@ class HestonJumpStock(BasePrimary):
         jump_per_year: float = 68,
         jump_mean: float = 0.0,
         jump_std: float = 0.01,
-        cost: float = 0.0,
+        cost: CostFunction = ZeroCostFunction(),
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,

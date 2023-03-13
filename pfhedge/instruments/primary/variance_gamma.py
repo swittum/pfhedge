@@ -12,7 +12,7 @@ from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic import generate_variance_gamma
 
 from .base import BasePrimary
-
+from cost_functions import CostFunction, ZeroCostFunction
 
 class VarianceGammaStock(BasePrimary):
     r"""A stock of which spot price and variance follow Merton Jump Diffusion process.
@@ -78,7 +78,7 @@ class VarianceGammaStock(BasePrimary):
         sigma: float = 1.0,
         theta: float = 0.0,
         kappa: float = 1.0,
-        cost: float = 0.0,
+        cost: CostFunction = ZeroCostFunction,
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,
