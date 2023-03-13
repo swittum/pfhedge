@@ -41,6 +41,7 @@ def generate_heston(
     dt: float = 1 / 250,
     dtype: Optional[torch.dtype] = None,
     device: Optional[torch.device] = None,
+    exp: bool = True,
 ) -> SpotVarianceTuple:
     """Returns time series following Heston model.
 
@@ -145,5 +146,6 @@ def generate_heston(
             + k2 * v1
             + (k3 * v0 + k4 * v1).sqrt() * randn[:, i_step]
         )
-
-    return SpotVarianceTuple(log_spot.exp(), variance)
+    if exp:
+        return SpotVarianceTuple(log_spot.exp(), variance)
+    return SpotVarianceTuple(log_spot, variance)

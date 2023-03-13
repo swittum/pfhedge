@@ -10,3 +10,4 @@ from .rough_bergomi import generate_rough_bergomi
 from .vasicek import generate_vasicek
 from .variance_gamma import generate_variance_gamma
 from .inverse_gaussian import generate_inverse_gaussian
+from .jumps import generate_jumps

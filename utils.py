@@ -6,15 +6,15 @@ def black_scholes_implemented(derivative: BaseDerivative):
     if derivative.__class__ == MultiDerivative:
         impl = [black_scholes_implemented(der) for der in derivative.derivatives]
         return not False in impl
-    if derivative.__class__ == AmericanBinaryOption:
+    if derivative.__class__ in [AmericanBinaryOption,LookbackOption]:
         return derivative.call
-    lst = [EuropeanOption,EuropeanBinaryOption,LookbackOption]
+    lst = [EuropeanOption,EuropeanBinaryOption]
     return derivative.__class__ in lst
 def prepare_hedges(transaction_costs: Union[float, List[float]],*args):
     num_hedges = len(args)
     if num_hedges==0:
         raise ValueError("No hedging instruments given")
-    transaction_costs = (transaction_costs,) * num_hedges if isinstance(num_hedges, int) else num_hedges
+    transaction_costs = (transaction_costs,) * num_hedges if isinstance(transaction_costs, float) else transaction_costs
     hedge = []
     if len(transaction_costs) != num_hedges:
         raise ValueError("Mismatched transaction cost list")
