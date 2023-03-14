@@ -10,7 +10,7 @@ from pfhedge.instruments import EuropeanOption
 from pfhedge.instruments import LookbackOption
 from pfhedge.nn import Hedger
 from pfhedge.nn import WhalleyWilmott
-
+from cost_functions import RelativeCostFunction
 
 class TestWhalleyWilmott:
     def test_repr(self):
@@ -64,7 +64,7 @@ WhalleyWilmott(
         self.test_shape(device="cuda")
 
     def test(self, device: Optional[Union[str, torch.device]] = "cpu"):
-        derivative = EuropeanOption(BrownianStock(cost=1e-4)).to(device)
+        derivative = EuropeanOption(BrownianStock(cost=RelativeCostFunction(1e-4))).to(device)
         model = WhalleyWilmott(derivative).to(device)
         hedger = Hedger(model, model.inputs())
         pnl = hedger.compute_pnl(derivative)
@@ -78,7 +78,7 @@ WhalleyWilmott(
         self, device: Optional[Union[str, torch.device]] = "cpu"
     ):
         derivative = (
-            EuropeanOption(BrownianStock(cost=1e-4)).to(torch.float64).to(device)
+            EuropeanOption(BrownianStock(cost=RelativeCostFunction(1e-4))).to(torch.float64).to(device)
         )
         model = WhalleyWilmott(derivative).to(torch.float64).to(device)
         hedger = Hedger(model, model.inputs()).to(torch.float64).to(device)

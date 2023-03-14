@@ -12,7 +12,7 @@ from pfhedge._utils.typing import TensorOrScalar
 from pfhedge.stochastic import generate_vasicek
 
 from .base import BasePrimary
-
+from cost_functions import CostFunction, ZeroCostFunction
 
 class VasicekRate(BasePrimary):
     r"""A rate which follow the Vasicek model.
@@ -59,7 +59,7 @@ class VasicekRate(BasePrimary):
         kappa: float = 1.0,
         theta: float = 0.04,
         sigma: float = 0.04,
-        cost: float = 0.0,
+        cost: CostFunction = ZeroCostFunction(),
         dt: float = 1 / 250,
         dtype: Optional[torch.dtype] = None,
         device: Optional[torch.device] = None,

@@ -15,9 +15,9 @@ class TestRoughBergomiStock:
         assert not s.variance.isnan().any()
 
     def test_repr(self):
-        s = RoughBergomiStock(cost=1e-4)
+        s = RoughBergomiStock()
         expect = "RoughBergomiStock(\
-alpha=-0.4000, rho=-0.9000, eta=1.9000, xi=0.0400, cost=1.0000e-04, dt=0.0040)"
+alpha=-0.4000, rho=-0.9000, eta=1.9000, xi=0.0400, dt=0.0040)"
         assert repr(s) == expect
 
     def test_simulate_shape(self):

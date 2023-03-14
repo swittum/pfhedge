@@ -19,6 +19,7 @@ from pfhedge.nn import Hedger
 from pfhedge.nn import MultiLayerPerceptron
 from pfhedge.nn import Naked
 from pfhedge.nn import WhalleyWilmott
+from cost_functions import ZeroCostFunction, RelativeCostFunction
 
 
 def void(*args, **kwargs):
@@ -136,7 +137,7 @@ Hedger(
         # pnl = -payoff if output = 0
         torch.manual_seed(42)
 
-        deriv = EuropeanOption(BrownianStock(cost=cost)).to(device)
+        deriv = EuropeanOption(BrownianStock(cost=RelativeCostFunction(cost=cost))).to(device)
         hedger = Hedger(Naked(), ["empty"]).to(device)
 
         pnl = hedger.compute_pnl(deriv)
@@ -265,10 +266,12 @@ Hedger(
         self.test_compute_pnl_payoff(device="cuda")
 
     def test_compute_pnl_cost(self, device: Optional[Union[str, torch.device]] = "cpu"):
-        cost = 1e-3
+        cost0= ZeroCostFunction()
+        costnum = 1e-3
+        cost1 = RelativeCostFunction(costnum)
         N, T = 10, 20
-        derivative0 = EuropeanOption(BrownianStock(cost=0.0)).to(device)
-        derivative1 = EuropeanOption(BrownianStock(cost=cost)).to(device)
+        derivative0 = EuropeanOption(BrownianStock(cost=cost0)).to(device)
+        derivative1 = EuropeanOption(BrownianStock(cost=cost1)).to(device)
         output = torch.randn(N, T - 1).to(device)
 
         hedger0 = Hedger(FakeModule(output.unsqueeze(-1)), ["empty", "prev_hedge"]).to(
@@ -288,7 +291,7 @@ Hedger(
 
         result = pnl0 - pnl1
         output = torch.cat((torch.zeros(N, 1).to(device), output), dim=-1)
-        expect = cost * (spot[..., :-1] * output.diff(dim=-1).abs()).sum(-1)
+        expect = costnum * (spot[..., :-1] * output.diff(dim=-1).abs()).sum(-1)
         assert_close(result, expect)
 
     @pytest.mark.gpu

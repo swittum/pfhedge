@@ -20,6 +20,7 @@ from pfhedge.nn.functional import realized_variance
 from pfhedge.nn.functional import realized_volatility
 from pfhedge.nn.functional import topp
 from pfhedge.nn.functional import value_at_risk
+from cost_functions import RelativeCostFunction
 
 
 def test_exp_utility(device: Optional[Union[str, torch.device]] = "cpu"):
@@ -244,7 +245,8 @@ def test_realized_volatility_gpu():
 
 def test_pl(device: Optional[Union[str, torch.device]] = "cpu"):
     N, T = 10, 20
-
+    costnum = 1e-3
+    cost = RelativeCostFunction(1e-3)
     # pl = -payoff if unit = 0
     torch.manual_seed(42)
     spot = torch.randn((N, 1, T)).to(device).exp()
@@ -274,8 +276,8 @@ def test_pl(device: Optional[Union[str, torch.device]] = "cpu"):
     torch.manual_seed(42)
     spot = torch.ones((N, 1, T)).to(device)
     unit = torch.randn((N, 1, T)).to(device)
-    result = pl(spot, unit, cost=[1e-3], deduct_first_cost=False)
-    expect = -1e-3 * ((unit[..., 1:] - unit[..., :-1]).abs() * spot[..., :-1]).sum(
+    result = pl(spot, unit, cost=[cost], deduct_first_cost=False)
+    expect = -costnum * ((unit[..., 1:] - unit[..., :-1]).abs() * spot[..., :-1]).sum(
         -1
     ).squeeze(1)
     assert_close(result, expect)
@@ -283,10 +285,10 @@ def test_pl(device: Optional[Union[str, torch.device]] = "cpu"):
     torch.manual_seed(42)
     spot = torch.ones((N, 1, T)).to(device)
     unit = torch.randn((N, 1, T)).to(device)
-    value0 = pl(spot, unit, cost=[1e-3], deduct_first_cost=False)
-    value1 = pl(spot, unit, cost=[1e-3], deduct_first_cost=True)
+    value0 = pl(spot, unit, cost=[cost], deduct_first_cost=False)
+    value1 = pl(spot, unit, cost=[cost], deduct_first_cost=True)
     result = value1 - value0
-    expect = -1e-3 * (unit[..., 0].abs() * spot[..., 1]).squeeze(1)
+    expect = -costnum * (unit[..., 0].abs() * spot[..., 1]).squeeze(1)
     assert_close(result, expect)
 
 

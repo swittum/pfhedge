@@ -4,6 +4,7 @@ from typing import Union
 import pytest
 import torch
 
+from cost_functions import RelativeCostFunction
 from pfhedge.instruments import BrownianStock
 from pfhedge.instruments import EuropeanOption
 from pfhedge.nn import BlackScholes
@@ -13,7 +14,7 @@ from pfhedge.nn import WhalleyWilmott
 
 
 def test_net(device: Optional[Union[str, torch.device]] = "cpu"):
-    derivative = EuropeanOption(BrownianStock(cost=1e-4)).to(device)
+    derivative = EuropeanOption(BrownianStock(cost=RelativeCostFunction(cost=1e-4))).to(device)
     model = MultiLayerPerceptron().to(device)
     hedger = Hedger(
         model, ["log_moneyness", "time_to_maturity", "volatility", "prev_hedge"]
@@ -32,7 +33,7 @@ def test_net_gpu():
 
 
 def test_bs(device: Optional[Union[str, torch.device]] = "cpu"):
-    derivative = EuropeanOption(BrownianStock(cost=1e-4)).to(device)
+    derivative = EuropeanOption(BrownianStock(cost=RelativeCostFunction(cost=1e-4))).to(device)
     model = BlackScholes(derivative).to(device)
     hedger = Hedger(model, model.inputs()).to(device)
     _ = hedger.price(derivative)
@@ -44,7 +45,7 @@ def test_bs_gpu():
 
 
 def test_ww(device: Optional[Union[str, torch.device]] = "cpu"):
-    derivative = EuropeanOption(BrownianStock(cost=1e-4)).to(device)
+    derivative = EuropeanOption(BrownianStock(cost=RelativeCostFunction(cost=1e-4))).to(device)
     model = WhalleyWilmott(derivative).to(device)
     hedger = Hedger(model, model.inputs()).to(device)
     _ = hedger.price(derivative)

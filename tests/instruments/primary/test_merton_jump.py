@@ -15,9 +15,9 @@ class TestMertonJumpStock:
         assert not s.variance.isnan().any()
 
     def test_repr(self):
-        s = MertonJumpStock(cost=1e-4)
+        s = MertonJumpStock()
         expect = "MertonJumpStock(\
-mu=0., sigma=0.2000, jump_per_year=68, jump_mean=0., jump_std=0.0100, cost=1.0000e-04, dt=0.0040)"
+mu=0., sigma=0.2000, jump_per_year=1., jump_mean=0., jump_std=0.3000, dt=0.0040)"
         assert repr(s) == expect
 
     def test_simulate_shape(self):

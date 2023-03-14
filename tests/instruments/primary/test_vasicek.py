@@ -25,9 +25,9 @@ class TestVasicekRate:
         self.test_values_are_finite(seed, device="cuda")
 
     def test_repr(self):
-        s = VasicekRate(cost=1e-4)
+        s = VasicekRate()
         expect = """\
-VasicekRate(kappa=1., theta=0.0400, sigma=0.0400, cost=1.0000e-04, dt=0.0040)"""
+VasicekRate(kappa=1., theta=0.0400, sigma=0.0400, dt=0.0040)"""
         assert repr(s) == expect
 
     def test_simulate_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):

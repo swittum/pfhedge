@@ -25,9 +25,9 @@ class TestHestonStock:
         self.test_values_are_finite(seed, device="cuda")
 
     def test_repr(self):
-        s = HestonStock(cost=1e-4)
+        s = HestonStock()
         expect = "HestonStock(\
-kappa=1., theta=0.0400, sigma=0.2000, rho=-0.7000, cost=1.0000e-04, dt=0.0040)"
+kappa=1., theta=0.0400, sigma=0.2000, rho=-0.7000, dt=0.0040)"
         assert repr(s) == expect
 
     def test_simulate_shape(self, device: Optional[Union[str, torch.device]] = "cpu"):

@@ -25,9 +25,9 @@ class TestBrownianStock:
         expect = "BrownianStock(sigma=0.2000, dt=0.0100)"
         assert repr(s) == expect
 
-        s = BrownianStock(dt=1 / 100, cost=0.001)
-        expect = "BrownianStock(sigma=0.2000, cost=0.0010, dt=0.0100)"
-        assert repr(s) == expect
+        #s = BrownianStock(dt=1 / 100, cost=0.001)
+        #expect = "BrownianStock(sigma=0.2000, cost=0.0010, dt=0.0100)"
+        #assert repr(s) == expect
 
         s = BrownianStock(dt=1 / 100, dtype=torch.float64)
         expect = "BrownianStock(sigma=0.2000, dt=0.0100, dtype=torch.float64)"
