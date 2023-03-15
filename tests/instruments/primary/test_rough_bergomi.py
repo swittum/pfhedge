@@ -12,6 +12,7 @@ class TestRoughBergomiStock:
         s = RoughBergomiStock()
         s.simulate(n_paths=1000)
 
+        assert not s.spot.isnan().any()
         assert not s.variance.isnan().any()
 
     def test_repr(self):
