@@ -118,16 +118,17 @@ def floating_asian_payoff(input: Tensor, call: bool = True, mult: float = 1.0, g
     Returns:
         torch.Tensor
     """
+    output = input
     if geom:
-        mean = input.log()
-    mean = mean.mean(dim=-1)
+        output = output.log()
+    output = output.mean(dim=-1)
     if geom:
-        mean = mean.exp()
-    mean = mult*mean
+        output = output.exp()
+    output = mult*output
     if call:
-        return fn.relu(input[..., -1]- mean)
+        return fn.relu(input[..., -1]- output)
     else:
-        return fn.relu(mean - input[..., -1])
+        return fn.relu(output - input[..., -1])
 def asian_payoff(input: Tensor, call: bool = True, strike: float = 1.0, geom: bool = False) -> Tensor:
     """Returns the payoff of an asian option with a fixed strike.
 
@@ -148,15 +149,16 @@ def asian_payoff(input: Tensor, call: bool = True, strike: float = 1.0, geom: bo
     Returns:
         torch.Tensor
     """
+    output = input
     if geom:
-        input = input.log()
-    mean = input.mean(dim=-1)
+        output = input.log()
+    output = output.mean(dim=-1)
     if geom:
-        mean = mean.exp()
+        output = output.exp()
     if call:
-        return fn.relu(mean - strike)
+        return fn.relu(output - strike)
     else:
-        return fn.relu(strike - mean)
+        return fn.relu(strike - output)
 def european_binary_payoff(
     input: Tensor, call: bool = True, strike: float = 1.0
 ) -> Tensor:
