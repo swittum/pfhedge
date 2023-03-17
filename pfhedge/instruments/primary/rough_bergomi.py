@@ -26,7 +26,7 @@ class RoughBergomiStock(BasePrimary):
         rho (float, default=-0.9): The parameter :math:`\\rho`.
         eta (float, default=1.9): The parameter :math:`\\eta`.
         xi (float, default=0.04): The parameter :math:`\\xi`.
-        cost (float, default=0.0): The transaction cost rate.
+        cost(CostFunction, default=ZeroCostFunction()): The function specifying transaction costs.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default

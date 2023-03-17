@@ -27,7 +27,7 @@ class HestonStock(BasePrimary):
         theta (float, default=0.04): The parameter :math:`\theta`.
         sigma (float, default=2.0): The parameter :math:`\sigma`.
         rho (float, default=-0.7): The parameter :math:`\rho`.
-        cost (float, default=0.0): The transaction cost rate.
+        cost(CostFunction, default=ZeroCostFunction()): The function specifying transaction costs.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default

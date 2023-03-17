@@ -28,7 +28,7 @@ class BrownianStock(BasePrimary):
             which stands for the volatility of the spot price.
         mu (float, default=0.0): The parameter :math:`\mu`,
             which stands for the drift of the spot price.
-        cost (float, default=0.0): The transaction cost rate.
+        cost(CostFunction, default=ZeroCostFunction()): The function specifying transaction costs.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default

@@ -27,7 +27,7 @@ class VarianceGammaStock(BasePrimary):
         jump_per_year (float, default=1.0): The frequency of jumps in one year.
         jump_mean (float, default=0.0): The mean of jumnp sizes.
         jump_std (float, default=0.3): The deviation of jump sizes.
-        cost (float, default=0.0): The transaction cost rate.
+        cost(CostFunction, default=ZeroCostFunction()): The function specifying transaction costs.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
             Default: If None, uses a global default
