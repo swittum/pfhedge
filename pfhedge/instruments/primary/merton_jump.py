@@ -27,7 +27,7 @@ class MertonJumpStock(BasePrimary):
         mu (float, default=0.0): The parameter :math:`\mu`.
         sigma (float, default=0.2): The parameter :math:`\sigma`.
         jump_per_year (float, default=1.0): The frequency of jumps in one year.
-        jump_mean (float, default=0.0): The mean of jumnp sizes.
+        jump_mean (float, default=0.0): The mean of jump sizes.
         jump_std (float, default=0.3): The deviation of jump sizes.
         cost(CostFunction, default=ZeroCostFunction()): The function specifying transaction costs.
         dt (float, default=1/250): The intervals of the time steps.

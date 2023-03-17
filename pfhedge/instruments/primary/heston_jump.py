@@ -15,17 +15,22 @@ from .base import BasePrimary
 from cost_functions import CostFunction, ZeroCostFunction
 
 class HestonJumpStock(BasePrimary):
-    r"""A stock of which spot price and variance follow Heston process.
+    r"""A stock of which spot price and variance follow a Heston process with independent Poisson-distributed jumps added to spot.
 
     .. seealso::
         - :func:`pfhedge.stochastic.generate_heston`:
-          The stochastic process.
+          The Heston stochastic process.
+        - :func:`pfhedge.stochastic.generate_jumps`:
+          The process generating jumps.   
 
     Args:
         kappa (float, default=1.0): The parameter :math:`\kappa`.
         theta (float, default=0.04): The parameter :math:`\theta`.
         sigma (float, default=2.0): The parameter :math:`\sigma`.
         rho (float, default=-0.7): The parameter :math:`\rho`.
+        jump_per_year (float, default=1.0): The frequency of jumps in one year.
+        jump_mean (float, default=0.0): The mean of jump sizes.
+        jump_std (float, default=0.3): The deviation of jump sizes.
         cost(CostFunction, default=ZeroCostFunction()): The function specifying transaction costs.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
@@ -49,10 +54,10 @@ class HestonJumpStock(BasePrimary):
           The shape is :math:`(N, T)`.
 
     Examples:
-        >>> from pfhedge.instruments import HestonStock
+        >>> from pfhedge.instruments import HestonJumpStock
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> stock = HestonStock()
+        >>> stock = HestonJumpStock()
         >>> stock.simulate(n_paths=2, time_horizon=5/250)
         >>> stock.spot
         tensor([[1.0000, 0.9902, 0.9823, 0.9926, 0.9968, 1.0040],

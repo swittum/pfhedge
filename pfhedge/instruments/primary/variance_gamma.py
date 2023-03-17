@@ -15,18 +15,16 @@ from .base import BasePrimary
 from cost_functions import CostFunction, ZeroCostFunction
 
 class VarianceGammaStock(BasePrimary):
-    r"""A stock of which spot price and variance follow Merton Jump Diffusion process.
+    r"""A stock whose spot follows the Variance Gamma process.
 
     .. seealso::
-        - :func:`pfhedge.stochastic.generate_merton_jump`:
+        - :func:`pfhedge.stochastic.generate_variance_gamma`:
           The stochastic process.
 
     Args:
-        mu (float, default=0.0): The parameter :math:`\mu`.
-        sigma (float, default=0.2): The parameter :math:`\sigma`.
-        jump_per_year (float, default=1.0): The frequency of jumps in one year.
-        jump_mean (float, default=0.0): The mean of jumnp sizes.
-        jump_std (float, default=0.3): The deviation of jump sizes.
+        sigma (float, default=1.0): The parameter :math:`\sigma`.
+        theta (float, default=0.0): The parameter :math:`\theta`.
+        kappa (float, default=1.0): The parameter :math:`\kappa`.
         cost(CostFunction, default=ZeroCostFunction()): The function specifying transaction costs.
         dt (float, default=1/250): The intervals of the time steps.
         dtype (torch.device, optional): Desired device of returned tensor.
@@ -49,26 +47,16 @@ class VarianceGammaStock(BasePrimary):
           The shape is :math:`(N, T)` where
           :math:`N` is the number of simulated paths and
           :math:`T` is the number of time steps.
-        - variance (:class:`torch.Tensor`): The variance of the instrument.
-          Note that this is different from the realized variance of the spot price.
-          This attribute is set by a method :meth:`simulate()`.
-          The shape is :math:`(N, T)`.
 
     Examples:
-        >>> from pfhedge.instruments import MertonJumpStock
+        >>> from pfhedge.instruments import InverseGaussianStock
         >>>
         >>> _ = torch.manual_seed(42)
         >>> stock = MertonJumpStock()
         >>> stock.simulate(n_paths=2, time_horizon=5/250)
         >>> stock.spot
-        tensor([[1.0000, 1.0100, 1.0135, 1.0141, 1.0208, 1.0176],
-                [1.0000, 1.0066, 0.9911, 1.0002, 1.0018, 1.0127]])
-        >>> stock.variance
-        tensor([[0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400],
-                [0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400]])
-        >>> stock.volatility
-        tensor([[0.2000, 0.2000, 0.2000, 0.2000, 0.2000, 0.2000],
-                [0.2000, 0.2000, 0.2000, 0.2000, 0.2000, 0.2000]])
+        tensor([[1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000],
+                [1.0000, 1.0000, 0.9831, 0.9831, 0.9831, 0.9831]])
     """
 
     spot: Tensor
