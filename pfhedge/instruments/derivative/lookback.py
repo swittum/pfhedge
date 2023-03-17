@@ -31,7 +31,7 @@ class LookbackOption(BaseDerivative, OptionMixin):
         \mathrm{payoff} = \max(K - \mathrm{Min}, 0) ,
 
     where
-    :math:`\mathrm{Max}` is the minimum of the underlier's spot price until maturity.
+    :math:`\mathrm{Min}` is the minimum of the underlier's spot price until maturity.
 
     .. seealso::
         - :func:`pfhedge.nn.functional.lookback_payoff`

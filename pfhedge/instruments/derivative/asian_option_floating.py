@@ -14,40 +14,29 @@ from .base import OptionMixin
 
 
 class FloatingAsianOption(BaseDerivative):
-    r"""American binary option.
+    r"""Asian option with fixed strike.
 
-    The payoff of an American binary call option is given by:
-
-    .. math::
-        \mathrm{payoff} =
-        \begin{cases}
-            1 & (\mathrm{Max} \geq K) \\
-            0 & (\text{otherwise})
-        \end{cases} ,
-
-    where
-    :math:`\mathrm{Max}` is the maximum of the underlier's spot price until maturity and
-    :math:`K` is the strike.
-
-    The payoff of an American binary put option is given by:
+    The payoff of an Asian call option is given by
 
     .. math::
-        \mathrm{payoff} =
-        \begin{cases}
-            1 & (\mathrm{Min} \leq K) \\
-            0 & (\text{otherwise})
-        \end{cases} ,
+        \mathrm{payoff} = \max(S - k\mathrm{Avg}, 0) ,
 
     where
-    :math:`\mathrm{Min}` is the minimum of the underlier's spot price until maturity.
+    :math:`S` is the underlier's spot price at maturity,
+    :math:`\mathrm{Avg}` is the mean of the underlier's spot price until maturity and
+    :math:`k` is the option's multiplier.
 
+    The payoff of an Asian put option is given by
+
+    .. math::
+        \mathrm{payoff} = \max(k\mathrm{Avg} - S, 0) .
     .. seealso::
-        - :func:`pfhedge.nn.functional.american_binary_payoff`
+        - :func:`pfhedge.nn.functional.floating_asian_payoff`
 
     Args:
         underlier (:class:`BasePrimary`): The underlying instrument of the option.
         call (bool, default=True): Specifies whether the option is call or put.
-        strike (float, default=1.0): The strike price of the option.
+        mult (float, default=1.0): The multiplier used in the option.
         maturity (float, default=20/250): The maturity of the option.
 
     Attributes:
@@ -58,17 +47,17 @@ class FloatingAsianOption(BaseDerivative):
     Examples:
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock
-        >>> from pfhedge.instruments import AmericanBinaryOption
+        >>> from pfhedge.instruments import FloatingAsianOption
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> derivative = AmericanBinaryOption(
-        ...     BrownianStock(), maturity=5/250, strike=1.01)
+        >>> derivative = FloatingAsianOption(
+        ...     BrownianStock(), maturity=5/250)
         >>> derivative.simulate(n_paths=2)
         >>> derivative.underlier.spot
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],
                 [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])
         >>> derivative.payoff()
-        tensor([0., 1.])
+        tensor([0.0000, 0.0153])
     """
 
     def __init__(

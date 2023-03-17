@@ -14,35 +14,23 @@ from .base import OptionMixin
 
 
 class AsianOption(BaseDerivative, OptionMixin):
-    r"""American binary option.
+    r"""Asian option with fixed strike.
 
-    The payoff of an American binary call option is given by:
+    The payoff of an Asian call option is given by
 
     .. math::
-        \mathrm{payoff} =
-        \begin{cases}
-            1 & (\mathrm{Max} \geq K) \\
-            0 & (\text{otherwise})
-        \end{cases} ,
+        \mathrm{payoff} = \max(\mathrm{Avg} - K, 0) ,
 
     where
-    :math:`\mathrm{Max}` is the maximum of the underlier's spot price until maturity and
+    :math:`\mathrm{Avg}` is the mean of the underlier's spot price until maturity and
     :math:`K` is the strike.
 
-    The payoff of an American binary put option is given by:
+    The payoff of an Asian put option is given by
 
     .. math::
-        \mathrm{payoff} =
-        \begin{cases}
-            1 & (\mathrm{Min} \leq K) \\
-            0 & (\text{otherwise})
-        \end{cases} ,
-
-    where
-    :math:`\mathrm{Min}` is the minimum of the underlier's spot price until maturity.
-
+        \mathrm{payoff} = \max(K - \mathrm{Avg}, 0) .
     .. seealso::
-        - :func:`pfhedge.nn.functional.american_binary_payoff`
+        - :func:`pfhedge.nn.functional.asian_payoff`
 
     Args:
         underlier (:class:`BasePrimary`): The underlying instrument of the option.
@@ -58,18 +46,17 @@ class AsianOption(BaseDerivative, OptionMixin):
     Examples:
         >>> import torch
         >>> from pfhedge.instruments import BrownianStock
-        >>> from pfhedge.instruments import AmericanBinaryOption
+        >>> from pfhedge.instruments import AsianOption
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> derivative = AmericanBinaryOption(
-        ...     BrownianStock(), maturity=5/250, strike=1.01)
+        >>> derivative = AsianOption(BrownianStock(), maturity=5/250)
         >>> derivative.simulate(n_paths=2)
         >>> derivative.underlier.spot
         tensor([[1.0000, 1.0016, 1.0044, 1.0073, 0.9930, 0.9906],
                 [1.0000, 0.9919, 0.9976, 1.0009, 1.0076, 1.0179]])
         >>> derivative.payoff()
-        tensor([0., 1.])
-    """
+        tensor([0.0000, 0.0027)
+        """
 
     def __init__(
         self,
