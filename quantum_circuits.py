@@ -1,7 +1,9 @@
+"""Provides the quantum circuits via Pennylane."""
 import pennylane as qml
 from abc import ABC
 import jax
 class QuantumCircuit(ABC):
+    """Parent class for all quantum circuits"""
     def __init__(self) -> None:
         super().__init__()
         self.n_inputs = 0
@@ -9,6 +11,7 @@ class QuantumCircuit(ABC):
         self.weight_shape = ()
 
 class SimpleQuantumCircuit(QuantumCircuit):
+    """Basic quantum circuit using angle embedding and alternating rotation and entanglement layers."""
     def __init__(self, n_qubits=3, n_layers=4, n_measurements = 0):
         super().__init__()
         if n_measurements == 0:
@@ -29,6 +32,7 @@ class SimpleQuantumCircuit(QuantumCircuit):
             return [qml.expval(qml.PauliZ(wires=i)) for i in range(n_measurements)]
         return qnode
 class ReuploadingQuantumCircuit(QuantumCircuit):
+    """Quantum circuit which repeatedly uses angle embedding in between rotation and entanglement layers."""
     def __init__(self, n_qubits=4, n_uploads=3, n_layers=2, n_measurements = 0):
         super().__init__()
         if n_measurements == 0:

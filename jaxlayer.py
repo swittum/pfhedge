@@ -1,3 +1,4 @@
+"""Handles the translation from a quantum circuit with a JAX interface to a torch module."""
 import torch
 import jax.numpy as jnp
 import jax
@@ -7,6 +8,15 @@ from jax2torch_func import j2t, t2j
 
 
 def make_jax_function(qnode, grad):
+    """Creates a torch function from JAX functions.
+
+    Args:
+        qnode: The JAX function for the forward pass
+        grad: The JAX function for the backward pass
+
+    Returns:
+        A class derived from torch.autograd.Function implementing the given JAX functions.
+    """
     class JaxFunction(torch.autograd.Function):
         @staticmethod
         def forward(ctx, inputs, weights):
@@ -26,6 +36,8 @@ def make_jax_function(qnode, grad):
 
 
 class JaxLayer(torch.nn.Module):
+    """Torch module implementing Pennylane quantum circuit with JAX interface.
+    """
     def __init__(self, circuit):
         super().__init__()
         batched_func = jax.jit(
