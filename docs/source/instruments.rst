@@ -33,6 +33,9 @@ Primary Instruments
     instruments.LocalVolatilityStock
     instruments.RoughBergomiStock
     instruments.MertonJumpStock
+    instruments.HestonJumpStock
+    instruments.VarianceGammaStock
+    instruments.InverseGaussianStock
     instruments.CIRRate
     instruments.VasicekRate
 
@@ -50,3 +53,5 @@ Derivative Instruments
     instruments.EuropeanOption
     instruments.LookbackOption
     instruments.VarianceSwap
+    instruments.AsianOption
+    instruments.FloatingAsianOption

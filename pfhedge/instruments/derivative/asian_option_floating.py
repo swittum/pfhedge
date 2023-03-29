@@ -14,7 +14,7 @@ from .base import OptionMixin
 
 
 class FloatingAsianOption(BaseDerivative):
-    r"""Asian option with fixed strike.
+    r"""Asian option with floating strike.
 
     The payoff of an Asian call option is given by
 
