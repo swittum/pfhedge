@@ -11,6 +11,8 @@ from pfhedge.nn import BlackScholes
 from pfhedge.nn import Hedger
 from pfhedge.nn import MultiLayerPerceptron
 from pfhedge.nn import WhalleyWilmott
+from models import MultiLayerHybrid
+from quantum_circuits import SimpleQuantumCircuit
 
 
 def test_net(device: Optional[Union[str, torch.device]] = "cpu"):
@@ -54,3 +56,21 @@ def test_ww(device: Optional[Union[str, torch.device]] = "cpu"):
 @pytest.mark.gpu
 def test_ww_gpu():
     test_ww(device="cuda")
+
+def test_quantum_net(device: Optional[Union[str, torch.device]] = "cpu"):
+    derivative = EuropeanOption(BrownianStock(cost=RelativeCostFunction(cost=1e-4))).to(device)
+    circuit = SimpleQuantumCircuit()
+    model = MultiLayerHybrid(circuit).to(device)
+    hedger = Hedger(
+        model, ["log_moneyness", "time_to_maturity", "volatility", "prev_hedge"]
+    ).to(device)
+    _ = hedger.fit(derivative, n_paths=100, n_epochs=10)
+    _ = hedger.price(derivative)
+
+    _ = hedger.fit(
+        derivative, n_paths=100, n_epochs=10, tqdm_kwargs={"desc": "description"}
+    )
+
+@pytest.mark.gpu
+def test_quantum_net_gpu():
+    test_quantum_net(device="cuda")
