@@ -79,9 +79,9 @@ def generate_merton_jump(
         >>> from pfhedge.stochastic import generate_merton_jump
         >>>
         >>> _ = torch.manual_seed(42)
-        >>> generate_merton_jump(2, 5)
-        tensor([[1.0000, 0.9905, 1.0075, 1.0161, 1.0118],
-                [1.0000, 1.0035, 1.0041, 1.0377, 1.0345]])
+        >>> generate_merton_jump(2, 5, jump_per_year=30.0)
+        tensor([[1.0000, 0.9851, 0.9967, 0.9999, 0.9903],
+                [1.0000, 0.9981, 0.9933, 2.1984, 2.1798]])
     """
     # https://www.codearmo.com/python-tutorial/merton-jump-diffusion-model-python
     init_state = cast_state(init_state, dtype=dtype, device=device)

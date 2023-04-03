@@ -21,6 +21,7 @@ Stochastic Processes
     generate_vasicek
     generate_rough_bergomi
     generate_merton_jump
+    generate_jumps
 
 Generators
 ----------
