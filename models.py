@@ -1,19 +1,29 @@
+"""Contains additional models, especially the quantum hybrid model class."""
 from copy import deepcopy
 from typing import List
 from typing import Optional
 from typing import Sequence
 from typing import Union
 
+import torch
+import torch.nn.functional as fn
+from torch import Tensor
 from torch.nn import Identity
 from torch.nn import LazyLinear
 from torch.nn import Linear
 from torch.nn import Module
 from torch.nn import ReLU
 from torch.nn import Sequential
+from torch.nn.parameter import Parameter
 from quantum_circuits import QuantumCircuit
+
+
+from pfhedge.nn import BlackScholes
+from pfhedge.nn import Clamp
 from jaxlayer import JaxLayer
 
 class MultiLayerHybrid(Sequential):
+    """Multi layer perceptron with additional variational quantum circuit layer."""
     def __init__(
         self,
         quantum: QuantumCircuit,
@@ -49,12 +59,10 @@ class MultiLayerHybrid(Sequential):
 
         super().__init__(*layers)
 
-import torch.nn.functional as fn
-from torch import Tensor
-from pfhedge.nn import BlackScholes, Clamp
 
 
 class NoTransactionBandNet(Module):
+    """Adds no transaction band layer to given model."""
     def __init__(self, derivative, model):
         super().__init__()
 
@@ -76,9 +84,9 @@ class NoTransactionBandNet(Module):
 
         return self.clamp(prev_hedge, min=min, max=max)
 
-from torch.nn.parameter import Parameter
-import torch
+
 class ConstantLayer(Module):
+    """Dummy model learning a constant hedge."""
     def __init__(self) -> None:
         super().__init__()
         self.bias = Parameter(torch.zeros(1,))
@@ -88,6 +96,7 @@ class ConstantLayer(Module):
         return output.repeat(shp)
 
 class PreprocessingCircuit(MultiLayerHybrid):
+    """Variational quantum circuit with classical pre- and postprocessing layers."""
     def __init__(self,
         quantum: QuantumCircuit,
         in_features: int,
@@ -98,6 +107,7 @@ class PreprocessingCircuit(MultiLayerHybrid):
         super().__init__(quantum,in_features,out_features,0,[in_features],activation,out_activation)
 
 class NoPreprocessingCircuit(Sequential):
+    """Variational quantum circuit with classical postprocessing layer."""
     def __init__(self,quantum: QuantumCircuit, out_features = 1, out_activation: Module = Identity()):
         layers: List[Module] = []
         layers.append(JaxLayer(quantum))
