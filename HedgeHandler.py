@@ -44,8 +44,19 @@ class HedgeHandler:
         history = self.fit()
         pnl = self.profit()
         bench = self.benchmark()
-        print(self.eval(pnl))
-        print(self.dict_eval(bench))
+
+        # Added by SWIT to improve logging facilities
+        import json
+        with open('./output.txt', 'w') as ofile:
+            ofile.write(str(self.eval(pnl)))
+            ofile.write('\n')
+            ofile.write(json.dumps(self.dict_eval(bench)))
+            ofile.write('\n')
+
+        # Commented out by SWIT
+        # print(self.eval(pnl))
+        # print(self.dict_eval(bench))
+
         training_fig = make_training_diagram(history)
         training_fig.savefig('trainingdiagram.png')
         plt.close(training_fig)
@@ -61,7 +72,9 @@ class HedgeHandler:
         prices = self.derivative.underlier.spot
         for i in range(number):
             fig = make_stock_diagram(prices[i,...])
-            fig.savefig(f'stockdiagram{i}')
+            fig.savefig(f'stockdiagram{i}', bbox_inches='tight')
             plt.close(fig)
+
+        
 
         

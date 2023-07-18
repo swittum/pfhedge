@@ -5,3 +5,5 @@ if __name__ == "__main__":
     reader = InputReader("config.yaml")
     handler = reader.load_config()
     handler.full_process()
+    # SWIT: Create additional stock_diagrams
+    handler.stock_diagrams(5)

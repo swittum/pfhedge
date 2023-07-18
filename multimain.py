@@ -5,3 +5,4 @@ if __name__ == "__main__":
     reader = InputReader("multiconfig.yaml")
     handler = reader.load_multi_config()
     handler.full_process()
+    handler.stock_diagrams(5)

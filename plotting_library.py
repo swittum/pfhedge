@@ -49,6 +49,9 @@ def make_multi_profit(profits,params, bench={}):
 def make_stock_diagram(listings):
     fig = plt.figure()
     plt.plot(to_numpy(listings))
-    plt.xlabel("Business day")
-    plt.ylabel("Stock price")
+    plt.xlabel("Business day", fontsize=20)
+    plt.ylabel("Stock price", fontsize=20)
+    plt.xticks(fontsize=16)
+    plt.yticks(fontsize=16)
+    plt.tight_layout()
     return fig

@@ -1,0 +1,34 @@
+underlier:
+  type: HestonJumpStock
+derivative:
+  type: EuropeanOption
+  call: True
+  strike: 1.05
+hedge:
+  underlier: True
+model:
+  NTB: False
+  type: MultiLayerHybrid
+  circuit:
+           type: SimpleQuantumCircuit
+           n_qubits: 5
+           n_layers: 5
+           #n_uploads: 3
+  n_units: 8
+  n_layers: 1
+loss:
+  type: ExpectedShortfall
+  p: 0.1
+training:
+  n_paths: 3000
+  n_epochs: 200
+  n_times: 1
+profit:
+  n_paths: 5000
+criterion:
+  type: ExpectedShortfall
+  p: 0.1
+benchmark:
+  NoHedge: True
+  WhalleyWilmott: True
+  BlackScholes: False
