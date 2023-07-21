@@ -1,0 +1,41 @@
+underlier:
+  type: RoughBergomiStock
+  cost:
+    type: RelativeCostFunction
+    cost: 3.0e-4
+derivative:
+  type: LookbackOption
+  call: True
+  strike: 1.1
+  maturity: 0.4 # Consider business days only
+hedge:
+  underlier: True
+loss:
+  type: ExpectedShortfall
+  p: 0.1
+model:
+  NTB: False
+  quantum: True
+parameters: 
+          # - 1
+          # - 2
+          # - 4
+          # - 8
+          - 16
+          - 32
+          - 64
+          # - 128
+multiply: 5
+training:
+  n_paths: 3000
+  n_epochs: 100
+  n_times: 1
+profit:
+  n_paths: 5000
+criterion:
+  type: ExpectedShortfall
+  p: 0.1
+benchmark:
+  NoHedge: True
+  WhalleyWilmott: True
+  BlackScholes: True

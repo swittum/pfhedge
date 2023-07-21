@@ -58,10 +58,10 @@ class HedgeHandler:
         # print(self.dict_eval(bench))
 
         training_fig = make_training_diagram(history)
-        training_fig.savefig('trainingdiagram.png')
+        training_fig.savefig('trainingdiagram.png', bbox_inches='tight')
         plt.close(training_fig)
         pnl_fig = make_pl_diagram(pnl)
-        pnl_fig.savefig('pldiagram.png')
+        pnl_fig.savefig('pldiagram.png', bbox_inches='tight')
         plt.close(pnl_fig)
         for key, value in bench.items():
             fig = make_pl_diagram(value)

@@ -19,5 +19,5 @@ class MultiHandler:
         bench = self.benchmark()
         profits = self.profit()
         fig = make_multi_profit(profits,self.params, bench)
-        fig.savefig('paramsprofits.png')
+        fig.savefig('paramsprofits.png', bbox_inches='tight')
         plt.close(fig)
