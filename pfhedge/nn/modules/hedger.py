@@ -611,6 +611,7 @@ class Hedger(Module):
 
         history = []
         progress = tqdm(range(n_epochs), disable=not verbose, **tqdm_kwargs)
+        path = './Backup_Parameters/params.pt'
         for _ in progress:
             # Compute training loss and backpropagate
             self.train()
@@ -624,7 +625,7 @@ class Hedger(Module):
                 self.eval()
                 loss = compute_loss(n_times=n_times, enable_grad=False)
                 history.append(loss.item())
-
+                torch.save(self, path)
                 progress.desc = "Loss=" + _format_float(float(loss.item()))
 
         return history if validation else None
