@@ -40,26 +40,30 @@ class HedgeHandler:
         for key in dictionary.keys():
             output[key] = self.eval(dictionary[key])
         return output
-    def full_process(self):
-        history = self.fit()
+
+    def full_process(self, backup):
+        if backup:
+            print('Loading backup.')
+            self.hedger.load_backup('./Backup_Parameters/params.pt') 
+        else:
+            history = self.fit()
+            training_fig = make_training_diagram(history)
+            training_fig.savefig('trainingdiagram.png', bbox_inches='tight')
+            plt.close(training_fig)
+
         pnl = self.profit()
         bench = self.benchmark()
 
-        # Added by SWIT to improve logging facilities
-        import json
-        with open('./output.txt', 'w') as ofile:
-            ofile.write(str(self.eval(pnl)))
-            ofile.write('\n')
-            ofile.write(json.dumps(self.dict_eval(bench)))
-            ofile.write('\n')
+        # import json
+        # with open('./output.txt', 'w') as ofile:
+        #     ofile.write(str(self.eval(pnl)))
+        #     ofile.write('\n')
+        #     ofile.write(json.dumps(self.dict_eval(bench)))
+        #     ofile.write('\n')
 
-        # Commented out by SWIT
-        # print(self.eval(pnl))
-        # print(self.dict_eval(bench))
+        print(self.eval(pnl))
+        print(self.dict_eval(bench))
 
-        training_fig = make_training_diagram(history)
-        training_fig.savefig('trainingdiagram.png', bbox_inches='tight')
-        plt.close(training_fig)
         pnl_fig = make_pl_diagram(pnl)
         pnl_fig.savefig('pldiagram.png', bbox_inches='tight')
         plt.close(pnl_fig)

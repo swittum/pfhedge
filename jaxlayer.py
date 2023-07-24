@@ -57,3 +57,5 @@ class JaxLayer(torch.nn.Module):
 
     def forward(self, inputs):
         return self.func.apply(inputs, self.weights)
+
+

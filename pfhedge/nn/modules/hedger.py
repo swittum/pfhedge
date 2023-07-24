@@ -625,7 +625,7 @@ class Hedger(Module):
                 self.eval()
                 loss = compute_loss(n_times=n_times, enable_grad=False)
                 history.append(loss.item())
-                torch.save(self, path)
+                torch.save(self.state_dict(), path)
                 progress.desc = "Loss=" + _format_float(float(loss.item()))
 
         return history if validation else None
@@ -685,3 +685,8 @@ class Hedger(Module):
             mean_price = ensemble_mean(_get_price, n_times=n_times)
 
         return mean_price
+
+    def load_backup(self, backup_path):
+        backup_file = torch.load(backup_path)
+        # print(backup_file)
+        self.load_state_dict(backup_file)

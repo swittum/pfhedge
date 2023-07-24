@@ -22,6 +22,20 @@ from pfhedge.nn import BlackScholes
 from pfhedge.nn import Clamp
 from jaxlayer import JaxLayer
 
+
+class PickleJaxLayer(JaxLayer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __reduce__(self):
+        state = (self.__class__, (self.weights, self.func))
+        return state
+
+    def __setstate__(self, state):
+        self.__class__, params = state
+        self.weights, self.func = state
+
+
 class MultiLayerHybrid(Sequential):
     """Multi layer perceptron with additional variational quantum circuit layer."""
     def __init__(
@@ -54,6 +68,7 @@ class MultiLayerHybrid(Sequential):
         layers.append(Linear(n_units[-1], quantum.n_inputs))
         layers.append(deepcopy(activation))
         layers.append(JaxLayer(quantum))
+        # layers.append(PickleJaxLayer(quantum))
         layers.append(Linear(quantum.n_outputs,out_features))
         layers.append(deepcopy(out_activation))
 
